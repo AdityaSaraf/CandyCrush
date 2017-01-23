@@ -10,8 +10,8 @@ LDFLAGS += -L. -L../jansson/lib -lhw2 -l:libjansson.a
 
 #replace these definitions with lists of your source and header files
 TESTSRC=hw2.c
-LIBOBJS=2DArray.o
-HEADERS=2DArray.h
+LIBOBJS=Array2D.o
+HEADERS=Array2D.h
 
 all: hw2 libhw2.a 
 
