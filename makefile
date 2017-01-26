@@ -5,7 +5,7 @@ CC = gcc
 
 # define useful flags to cc/ld/etc.
 #CFLAGS += -std=c11 -g -Wall -Wpedantic -I. -I../jansson/include -O0
-CFLAGS += -std=c11 -O3 -Wall -Wpedantic -I. -I../jansson/include -O0
+CFLAGS += -std=c11 -g -O3 -Wall -Wpedantic -I. -I../jansson/include -O0
 LDFLAGS += -L. -L../jansson/lib -lhw2 -l:libjansson.a
 
 #replace these definitions with lists of your source and header files
