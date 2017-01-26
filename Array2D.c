@@ -25,7 +25,7 @@ Array2D Array2D_create(int rows, int cols) {
     return NULL;
   }
 
-  a->arr = malloc(sizeof(Array2DData_t)*rows*cols);
+  a->arr = malloc(sizeof(Array2DData_t)*(rows*cols));
   if (!(a->arr)) {
     return NULL;
   }
@@ -44,7 +44,7 @@ int Array2D_set(Array2D a, int row, int col, Array2DData_t data) {
     return -3;
   }
 
-  a->arr[(row * a->rows) + col] = data;
+  a->arr[(row * a->cols) + col] = data;
   return 1;
 }
 
@@ -58,8 +58,8 @@ int Array2D_swap(Array2D a, int r1, int c1, int r2, int c2) {
     return v2;
   }
 
-  Array2DData_t data1 = a->arr[(r1 * a->rows) + c1];
-  Array2DData_t data2 = a->arr[(r2 * a->rows) + c2];
+  Array2DData_t data1 = a->arr[(r1 * a->cols) + c1];
+  Array2DData_t data2 = a->arr[(r2 * a->cols) + c2];
   
   if (!data1) {
     return -3;
@@ -68,19 +68,13 @@ int Array2D_swap(Array2D a, int r1, int c1, int r2, int c2) {
     return -4;
   }
 
-  a->arr[(r1 * a->rows) + c1] = data2;
-  a->arr[(r2 * a->rows) + c2] = data1;
+  a->arr[(r1 * a->cols) + c1] = data2;
+  a->arr[(r2 * a->cols) + c2] = data1;
   return 1;
 }
 
-int Array2D_get(Array2D a, int row, int col, Array2DData_t *dataP) {
-  int v = VerifyArray2D(a, row, col);
-  if (v < 1) {
-    return v;
-  }
-  
-  *dataP = a->arr[(row * a->rows) + col];
-  return 1;
+Array2DData_t Array2D_get(Array2D a, int row, int col) {
+  return a->arr[(row * a->cols) + col];
 }
 
 int Array2D_destroy(Array2D a, Array2DDataFreeFnPtr data_free_function) {
@@ -93,6 +87,7 @@ int Array2D_destroy(Array2D a, Array2DDataFreeFnPtr data_free_function) {
   for (int i = 0; i < (a->rows * a->cols); i++) {
     data_free_function(a->arr[i]);
   }
+  free(a->arr);
   free(a);
   return 1;
 }

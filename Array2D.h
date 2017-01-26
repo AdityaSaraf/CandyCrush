@@ -94,7 +94,7 @@ int Array2D_swap(Array2D a, int r1, int c1, int r2, int c2);
 // - 0 if a is null
 // - -1 if row is out of bounds
 // - -2 if col is out of bounds
-int Array2D_get(Array2D a, int row, int col, Array2DData_t *dataP);
+Array2DData_t Array2D_get(Array2D a, int row, int col);
 
 // Free a 2D array that was previously allocated by 2Darray_create
 //
