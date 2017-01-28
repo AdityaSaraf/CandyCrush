@@ -2,6 +2,8 @@
 
 #include "Array2D.h"
 
+// Verifies a 2D array index - returns 0 if the array is null, -1 if the row
+// is out of bounds and -2 if the columns is out of bounds
 int VerifyArray2D(Array2D a, int row, int col) {
   if (!a) {
     return 0;
@@ -58,6 +60,7 @@ int Array2D_swap(Array2D a, int r1, int c1, int r2, int c2) {
     return v2;
   }
 
+  // fetch the data from both indexes
   Array2DData_t data1 = a->arr[(r1 * a->cols) + c1];
   Array2DData_t data2 = a->arr[(r2 * a->cols) + c2];
   
@@ -68,6 +71,7 @@ int Array2D_swap(Array2D a, int r1, int c1, int r2, int c2) {
     return -4;
   }
 
+  //swap the data
   a->arr[(r1 * a->cols) + c1] = data2;
   a->arr[(r2 * a->cols) + c2] = data1;
   return 1;

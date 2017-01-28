@@ -27,8 +27,6 @@ Array2D deserialize_array(const char* filename) {
   json_t *cols = json_object_get(root, "columns");
 	int rowNum = json_integer_value(rows);
   int colNum = json_integer_value(cols);
-  json_decref(rows);
-  json_decref(cols);
 
   Array2D arr2d = Array2D_create(rowNum, colNum);
 
@@ -42,9 +40,6 @@ Array2D deserialize_array(const char* filename) {
     Array2D_set(arr2d, i/colNum, i%colNum, n);
   }
   print_array(arr2d);
-  //json_decref(el);
-  //json_decref(arr);
-  //json_decref(root);
   return arr2d;
 }
 
@@ -53,6 +48,7 @@ void set_array(Array2D arr, int row, int col, int val) {
   printf("[%d] Set [%d][%d] to %d\n", operations, row, col, val);
   int* valPtr = malloc(sizeof(int));
   *valPtr = val;
+  free(Array2D_get(arr, row, col));
   Array2D_set(arr, row, col, valPtr);
   print_array(arr);
 }
@@ -72,19 +68,22 @@ void serialize_array(Array2D arr, const char* filename) {
   json_t *cols = json_integer((json_int_t) arr->cols);
   json_object_set(obj, "rows", rows);
   json_object_set(obj, "columns", cols);
-  json_decref(rows);
-  json_decref(cols);
+
   json_t *jarr = json_array();
   for (int i = 0; i < arr->rows; i++) {
     for (int j = 0; j < arr->cols; j++) {
       printf("\t\tserialized %d\n", *(int*) Array2D_get(arr, i, j));
-      json_array_append(jarr, json_integer(*(int*)Array2D_get(arr, i, j)));
+      json_t *el = json_integer(*(int*)Array2D_get(arr, i, j));
+      json_array_append(jarr, el);
+      json_decref(el);
     }
   }
   json_object_set(obj, "data", jarr);
   json_dump_file(obj, filename, 0);
-  json_decref(obj);
+  json_decref(rows);
+  json_decref(cols);
   json_decref(jarr);
+  json_decref(obj);
   printf("\n");
 }
 
