@@ -185,16 +185,16 @@ activate (GtkApplication *app,
 }
 
 int main(int argc, char *argv[]) {
-
-	// if (argc != 2)
-	// {
-	// 	printf("usage: %s filename\n", argv[0]);
-	// }
-	// else
-	// {
+  int status = 0;
+	if (argc != 2)
+	{
+		printf("usage: %s filename\n", argv[0]);
+    return EXIT_FAILURE;
+	}
+	else
+	{
 
       GtkApplication *app;
-      int status;
 
 		  app = gtk_application_new ("com.github.adityasaraf.CandyCrush", G_APPLICATION_HANDLES_OPEN);
 		  g_signal_connect (app, "open", G_CALLBACK (open), NULL);
@@ -202,7 +202,7 @@ int main(int argc, char *argv[]) {
 		  status = g_application_run (G_APPLICATION (app), argc, argv);
 		  g_object_unref (app);
       Array2D_destroy(board, free);
-	//}
+	}
 
 
 	return status;
