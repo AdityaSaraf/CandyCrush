@@ -135,7 +135,7 @@ activate (GtkApplication *app,
   /* create a new window, and set its title */
   window = gtk_application_window_new (app);
   gtk_window_set_title (GTK_WINDOW (window), "CandyCrush");
-  gtk_window_set_default_size (GTK_WINDOW (window), 1000, 1000);
+  gtk_window_set_default_size (GTK_WINDOW (window), 600, 600);
   gtk_container_set_border_width (GTK_CONTAINER (window), 10);
 
   /* Here we construct the container that is going pack our buttons */
@@ -194,14 +194,14 @@ int main(int argc, char *argv[]) {
 	else
 	{
 
-      GtkApplication *app;
+    GtkApplication *app;
 
-		  app = gtk_application_new ("com.github.adityasaraf.CandyCrush", G_APPLICATION_HANDLES_OPEN);
-		  g_signal_connect (app, "open", G_CALLBACK (open), NULL);
-      g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
-		  status = g_application_run (G_APPLICATION (app), argc, argv);
-		  g_object_unref (app);
-      Array2D_destroy(board, free);
+	  app = gtk_application_new ("com.github.adityasaraf.CandyCrush", G_APPLICATION_HANDLES_OPEN);
+	  g_signal_connect (app, "open", G_CALLBACK (open), NULL);
+    g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
+	  status = g_application_run (G_APPLICATION (app), argc, argv);
+	  g_object_unref (app);
+    Array2D_destroy(board, (Array2DDataFreeFnPtr) &free);
 	}
 
 
