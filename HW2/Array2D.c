@@ -8,10 +8,10 @@ int VerifyArray2D(Array2D a, int row, int col) {
   if (!a) {
     return 0;
   }
-  if (row > a->rows - 1) {
+  if (row < 0 || row > a->rows - 1) {
     return -1;
   }
-  if (col > a->cols - 1) {
+  if (col < 0 || col > a->cols - 1) {
     return -2;
   }
   return 1;

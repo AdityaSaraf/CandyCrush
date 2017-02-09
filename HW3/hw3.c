@@ -8,6 +8,7 @@
 
 Array2D board;
 GtkWidget *selected;
+int moves;
 
 static void
 setButtonImage(GtkWidget *button, int row, int col) {
@@ -20,7 +21,7 @@ setButtonImage(GtkWidget *button, int row, int col) {
   else if (color == 2) strcat(filename, "orange.png");
   else if (color == 3) strcat(filename, "purple.png");
   else if (color == 4) strcat(filename, "red.png");
-  else if (color == 5) strcat(filename, "yellow.png");  
+  else if (color == 5) strcat(filename, "yellow.png"); 
   icon = gtk_image_new_from_file(filename);
   gtk_button_set_image(GTK_BUTTON(button), icon);
 }
@@ -41,7 +42,7 @@ redraw(GtkWidget *widget, int r1, int c1, int r2, int c2) {
 }
 
 static void
-swap_up (GtkWidget *widget, gpointer user_data) {
+swap (GtkWidget *widget, gpointer user_data) {
   if (selected) {
     GValue GRow = G_VALUE_INIT;
     GValue GCol = G_VALUE_INIT;
@@ -51,65 +52,26 @@ swap_up (GtkWidget *widget, gpointer user_data) {
     gtk_container_child_get_property(GTK_CONTAINER(widget), selected, "left-attach", &GCol);
     int row = g_value_get_int(&GRow);
     int col = g_value_get_int(&GCol);
-    if (Array2D_swap(board, board->rows - row - 1, col, board->rows - row, col) == 1) {
-      redraw(widget, row, col, row - 1, col);
+    int bits = *(int*) g_object_get_data(G_OBJECT(user_data), "bits");
+    int ud = 0;
+    int lr = 0;
+    if (bits == 0) {
+      ud = 1;
+    } else if (bits == 1) {
+      ud = -1;
+    } else if (bits == 2) {
+      lr = -1;
+    } else if (bits == 3) {
+      lr = 1;
     }
-    gtk_button_set_relief(GTK_BUTTON(selected), GTK_RELIEF_NONE);
-  }
-}
-
-static void
-swap_left (GtkWidget *widget, gpointer user_data) {
-  if (selected) {
-    GValue GRow = G_VALUE_INIT;
-    GValue GCol = G_VALUE_INIT;
-    g_value_init(&GRow, G_TYPE_INT);
-    g_value_init(&GCol, G_TYPE_INT);
-    gtk_container_child_get_property(GTK_CONTAINER(widget), selected, "top-attach", &GRow);
-    gtk_container_child_get_property(GTK_CONTAINER(widget), selected, "left-attach", &GCol);
-    int row = g_value_get_int(&GRow);
-    int col = g_value_get_int(&GCol);
-    if (Array2D_swap(board, board->rows - row - 1, col, board->rows - row - 1, col - 1) == 1) {
-      redraw(widget, row, col, row, col - 1);
+    if (Array2D_swap(board, board->rows - row - 1, col, board->rows - row - 1 + ud, col + lr) == 1) {
+      moves++;
+      redraw(widget, row, col, row - ud, col + lr);
+      gtk_button_set_relief(GTK_BUTTON(selected), GTK_RELIEF_NONE);
+      selected = NULL;
     }
-    gtk_button_set_relief(GTK_BUTTON(selected), GTK_RELIEF_NONE);
-  }
-}
-
-static void
-swap_right (GtkWidget *widget, gpointer user_data) {
-
-  if (selected) {
-    GValue GRow = G_VALUE_INIT;
-    GValue GCol = G_VALUE_INIT;
-    g_value_init(&GRow, G_TYPE_INT);
-    g_value_init(&GCol, G_TYPE_INT);
-    gtk_container_child_get_property(GTK_CONTAINER(widget), selected, "top-attach", &GRow);
-    gtk_container_child_get_property(GTK_CONTAINER(widget), selected, "left-attach", &GCol);
-    int row = g_value_get_int(&GRow);
-    int col = g_value_get_int(&GCol);
-    if (Array2D_swap(board, board->rows - row - 1, col, board->rows - row - 1, col + 1) == 1) {
-      redraw(widget, row, col, row, col + 1);
-    }
-    gtk_button_set_relief(GTK_BUTTON(selected), GTK_RELIEF_NONE);
-  }
-}
-
-static void
-swap_down (GtkWidget *widget, gpointer user_data) {
-  if (selected) {
-    GValue GRow = G_VALUE_INIT;
-    GValue GCol = G_VALUE_INIT;
-    g_value_init(&GRow, G_TYPE_INT);
-    g_value_init(&GCol, G_TYPE_INT);
-    gtk_container_child_get_property(GTK_CONTAINER(widget), selected, "top-attach", &GRow);
-    gtk_container_child_get_property(GTK_CONTAINER(widget), selected, "left-attach", &GCol);
-    int row = g_value_get_int(&GRow);
-    int col = g_value_get_int(&GCol);
-    if (Array2D_swap(board, board->rows - row - 1, col, board->rows - row - 2, col) == 1) {
-      redraw(widget, row, col, row + 1, col);
-    }
-    gtk_button_set_relief(GTK_BUTTON(selected), GTK_RELIEF_NONE);
+    g_value_unset(&GRow);
+    g_value_unset(&GCol);
   }
 }
 
@@ -151,33 +113,45 @@ activate (GtkApplication *app,
       button = gtk_button_new();
       setButtonImage(button, i, j);
       gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
-      g_signal_connect(button, "pressed", G_CALLBACK(select), grid);
+      g_signal_connect(button, "clicked", G_CALLBACK(select), grid);
       gtk_grid_attach(GTK_GRID(grid), button, j, i, 1, 1);
     }
   }
   
   icon = gtk_image_new_from_file("images/direction/up.png");
   button = gtk_button_new();
+  int *upbits = (int*) malloc(sizeof(int));
+  *upbits = 0;
+  g_object_set_data(G_OBJECT(button), "bits", upbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
-  g_signal_connect_swapped(button, "clicked", G_CALLBACK(swap_up), grid);
+  g_signal_connect_swapped(button, "clicked", G_CALLBACK(swap), grid);
   gtk_grid_attach(GTK_GRID(grid), button, board->cols + 1, 0, 5, 1);
 
   icon = gtk_image_new_from_file("images/direction/left.png");
   button = gtk_button_new();
+  int *leftbits = (int*) malloc(sizeof(int));
+  *leftbits = 2;
+  g_object_set_data(G_OBJECT(button), "bits", leftbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
-  g_signal_connect_swapped(button, "clicked", G_CALLBACK(swap_left), grid);
+  g_signal_connect_swapped(button, "clicked", G_CALLBACK(swap), grid);
   gtk_grid_attach(GTK_GRID(grid), button, board->cols + 1, 1, 5, 1);
 
   icon = gtk_image_new_from_file("images/direction/right.png");
   button = gtk_button_new();
+  int *rightbits = (int*) malloc(sizeof(int));
+  *rightbits = 3;
+  g_object_set_data(G_OBJECT(button), "bits", rightbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
-  g_signal_connect_swapped(button, "clicked", G_CALLBACK(swap_right), grid);
+  g_signal_connect_swapped(button, "clicked", G_CALLBACK(swap), grid);
   gtk_grid_attach(GTK_GRID(grid), button, board->cols + 1, 2, 5, 1);
 
   icon = gtk_image_new_from_file("images/direction/down.png");
   button = gtk_button_new();
+  int *downbits = (int*) malloc(sizeof(int));
+  *downbits = 1;
+  g_object_set_data(G_OBJECT(button), "bits", downbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
-  g_signal_connect_swapped(button, "clicked", G_CALLBACK(swap_down), grid);
+  g_signal_connect_swapped(button, "clicked", G_CALLBACK(swap), grid);
   gtk_grid_attach(GTK_GRID(grid), button, board->cols + 1, 3, 5, 1);
   
 
