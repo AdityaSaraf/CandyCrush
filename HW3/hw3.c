@@ -53,25 +53,27 @@ swap (GtkWidget *widget, gpointer user_data) {
     int row = g_value_get_int(&GRow);
     int col = g_value_get_int(&GCol);
     int bits = *(int*) g_object_get_data(G_OBJECT(user_data), "bits");
-    int ud = 0;
-    int lr = 0;
-    if (bits == 0) {
-      ud = 1;
-    } else if (bits == 1) {
-      ud = -1;
-    } else if (bits == 2) {
-      lr = -1;
-    } else if (bits == 3) {
-      lr = 1;
-    }
+    // 1000 (8) = up, 0100 (4) = left, 0010 (2) = down, 0001 (1) = right. think WASD. what follows are
+    // fancy masks such that ud is 1 for up and -1 for down and lr is -1 for left and 1 for right
+    int ud = ((bits&8)>>3) + ~((bits&2)>>1)+1;
+    int lr = ~((bits&4)>>2)+1 + (bits&1);
     if (Array2D_swap(board, board->rows - row - 1, col, board->rows - row - 1 + ud, col + lr) == 1) {
       moves++;
       redraw(widget, row, col, row - ud, col + lr);
       gtk_button_set_relief(GTK_BUTTON(selected), GTK_RELIEF_NONE);
       selected = NULL;
+      moves++;
+    }
+    else
+    {
+      printf("Error: cannot swap candy off board!\n", moves);
     }
     g_value_unset(&GRow);
     g_value_unset(&GCol);
+  }
+  else
+  {
+    printf("Error: no candy selected!\n");
   }
 }
 
@@ -93,6 +95,7 @@ activate (GtkApplication *app,
   GtkWidget *grid;
   GtkWidget *button;
   GtkWidget *icon;
+  GtkWidget *label;
 
   /* create a new window, and set its title */
   window = gtk_application_window_new (app);
@@ -121,38 +124,43 @@ activate (GtkApplication *app,
   icon = gtk_image_new_from_file("images/direction/up.png");
   button = gtk_button_new();
   int *upbits = (int*) malloc(sizeof(int));
-  *upbits = 0;
+  *upbits = 8;
   g_object_set_data(G_OBJECT(button), "bits", upbits);
-  gtk_button_set_image(GTK_BUTTON(button), icon);
-  g_signal_connect_swapped(button, "clicked", G_CALLBACK(swap), grid);
-  gtk_grid_attach(GTK_GRID(grid), button, board->cols + 1, 0, 5, 1);
-
-  icon = gtk_image_new_from_file("images/direction/left.png");
-  button = gtk_button_new();
-  int *leftbits = (int*) malloc(sizeof(int));
-  *leftbits = 2;
-  g_object_set_data(G_OBJECT(button), "bits", leftbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
   g_signal_connect_swapped(button, "clicked", G_CALLBACK(swap), grid);
   gtk_grid_attach(GTK_GRID(grid), button, board->cols + 1, 1, 5, 1);
 
-  icon = gtk_image_new_from_file("images/direction/right.png");
+  icon = gtk_image_new_from_file("images/direction/left.png");
   button = gtk_button_new();
-  int *rightbits = (int*) malloc(sizeof(int));
-  *rightbits = 3;
-  g_object_set_data(G_OBJECT(button), "bits", rightbits);
+  int *leftbits = (int*) malloc(sizeof(int));
+  *leftbits = 4;
+  g_object_set_data(G_OBJECT(button), "bits", leftbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
   g_signal_connect_swapped(button, "clicked", G_CALLBACK(swap), grid);
   gtk_grid_attach(GTK_GRID(grid), button, board->cols + 1, 2, 5, 1);
 
-  icon = gtk_image_new_from_file("images/direction/down.png");
+  icon = gtk_image_new_from_file("images/direction/right.png");
   button = gtk_button_new();
-  int *downbits = (int*) malloc(sizeof(int));
-  *downbits = 1;
-  g_object_set_data(G_OBJECT(button), "bits", downbits);
+  int *rightbits = (int*) malloc(sizeof(int));
+  *rightbits = 1;
+  g_object_set_data(G_OBJECT(button), "bits", rightbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
   g_signal_connect_swapped(button, "clicked", G_CALLBACK(swap), grid);
   gtk_grid_attach(GTK_GRID(grid), button, board->cols + 1, 3, 5, 1);
+
+  icon = gtk_image_new_from_file("images/direction/down.png");
+  button = gtk_button_new();
+  int *downbits = (int*) malloc(sizeof(int));
+  *downbits = 2;
+  g_object_set_data(G_OBJECT(button), "bits", downbits);
+  gtk_button_set_image(GTK_BUTTON(button), icon);
+  g_signal_connect_swapped(button, "clicked", G_CALLBACK(swap), grid);
+  gtk_grid_attach(GTK_GRID(grid), button, board->cols + 1, 4, 5, 1);
+
+  char msg[32] = {0};
+  g_snprintf(msg, sizeof msg, "%d moves made", moves);
+  label = gtk_label_new(msg);
+  gtk_grid_attach(GTK_GRID(grid), label, board->cols + 1, 0, 5, 1);
   
 
   gtk_widget_show_all (window);
