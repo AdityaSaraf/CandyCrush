@@ -12,7 +12,7 @@ extern GtkWidget *selected;
 extern int moves;
 extern GtkWidget* label;
 
-static void
+void
 setButtonImage(GtkWidget *button, int row, int col) {
   GtkWidget *icon;
   int color = *(int*) Array2D_get(board, board->rows - row - 1, col);
@@ -28,7 +28,7 @@ setButtonImage(GtkWidget *button, int row, int col) {
   gtk_button_set_image(GTK_BUTTON(button), icon);
 }
 
-static void
+void
 redraw(GtkWidget *widget, int r1, int c1, int r2, int c2) {
   GtkWidget *button = gtk_grid_get_child_at(GTK_GRID(widget), c1, r1);
   setButtonImage(button, r1, c1);
@@ -36,7 +36,7 @@ redraw(GtkWidget *widget, int r1, int c1, int r2, int c2) {
   setButtonImage(button, r2, c2);
 }
 
-static void
+void
 writeMoves ()
 {
   char msg[32] = {0};
@@ -44,14 +44,14 @@ writeMoves ()
   gtk_label_set_text(GTK_LABEL(label), msg);
 }
 
-static void
+void
 select (GtkWidget *widget, gpointer user_data) {
   if (selected) gtk_button_set_relief(GTK_BUTTON(selected), GTK_RELIEF_NONE);
   selected = widget;
   gtk_button_set_relief(GTK_BUTTON(widget), GTK_RELIEF_NORMAL);
 }
 
-static void
+void
 swap (GtkWidget *widget, gpointer user_data) {
   if (selected) {
     GValue GRow = G_VALUE_INIT;
@@ -87,7 +87,7 @@ swap (GtkWidget *widget, gpointer user_data) {
   }
 }
 
-static void
+void
 open (GtkApplication *app,
       GFile          **files,
       gint            n_files,
@@ -97,7 +97,7 @@ open (GtkApplication *app,
   g_application_activate(G_APPLICATION(app));
 }
 
-static void
+void
 activate (GtkApplication *app,
           gpointer        user_data)
 {
