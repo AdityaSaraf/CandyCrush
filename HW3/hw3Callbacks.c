@@ -88,16 +88,6 @@ swap (GtkWidget *widget, gpointer user_data) {
 }
 
 void
-open (GtkApplication *app,
-      GFile          **files,
-      gint            n_files,
-      const gchar    *hint)
-{
-  board = deserialize_array(g_file_get_path(files[0]));
-  g_application_activate(G_APPLICATION(app));
-}
-
-void
 activate (GtkApplication *app,
           gpointer        user_data)
 {

@@ -12,6 +12,17 @@ GtkWidget *selected;
 int moves;
 GtkWidget* label;
 
+static void
+open (GtkApplication *app,
+      GFile          **files,
+      gint            n_files,
+      const gchar    *hint,
+      gpointer        user_data)
+{
+  board = deserialize_array(g_file_get_path(files[0]));
+  g_application_activate(G_APPLICATION(app));
+}
+
 int main(int argc, char *argv[]) {
   int status = 0;
 	if (argc != 2)
@@ -29,8 +40,6 @@ int main(int argc, char *argv[]) {
     g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
 	  status = g_application_run (G_APPLICATION (app), argc, argv);
 	  g_object_unref (app);
-    g_object_unref (selected);
-    g_object_unref (label);
     Array2D_destroy(board, (Array2DDataFreeFnPtr) &free);
 	}
 

@@ -1,4 +1,4 @@
-SRC= hw3Callbacks.c hw3.c hw2_modified.c # change these to your source file names
+SRC= hw3.c hw3Callbacks.c hw2_modified.c # change these to your source file names
 HEADERS= hw2_modified.h hw3Callbacks.h # change these to your header file names
 LIBS=../HW2/libhw2.a  # you should use your hw2 code as a library
 CFLAGS = -Wall -Wpedantic -std=c11 

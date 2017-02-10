@@ -33,11 +33,6 @@ swap (GtkWidget *widget, gpointer user_data);
 
 // Opens the file given via stdin to the program and constructs the Array2D
 // for the board
-void
-open (GtkApplication *app,
-      GFile          **files,
-      gint            n_files,
-      const gchar    *hint);
 
 // Initalizes the app and calls the other functions to set the correct signals
 void
