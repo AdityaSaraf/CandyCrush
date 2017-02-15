@@ -4,8 +4,10 @@
 #include <gtk/gtk.h>
 #include <jansson.h>
 
-#include "hw2_modified.h"
-#include "hw3Callbacks.h"
+extern "C" {
+  #include "hw2_modified.h"
+  #include "hw3Callbacks.h"
+}
 
 extern Array2D board;
 extern GtkWidget *selected;

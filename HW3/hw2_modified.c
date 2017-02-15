@@ -3,7 +3,9 @@
 #include <string.h>
 #include <jansson.h>
 
-#include "hw2_modified.h"
+extern "C" {
+  #include "hw2_modified.h"
+}
 
 json_t *root;
 
@@ -23,7 +25,7 @@ Array2D deserialize_array(const char* filename) {
   json_t* el;
   for (int i = 0; i < (rowNum * colNum); i++) {
     el = json_array_get(arr, (size_t) i);
-    int* n = malloc(sizeof(int));
+    int* n = (int*) malloc(sizeof(int));
     *n = (int) json_integer_value(el);
     Array2D_set(arr2d, i/colNum, i%colNum, n);
   }
