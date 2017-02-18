@@ -36,7 +36,7 @@ swap (GtkWidget *widget, gpointer user_data);
 
 // Initalizes the app and calls the other functions to set the correct signals
 void
-activate (GtkApplication *app,
+activatecc (GtkApplication *app,
           gpointer        user_data);
 
 #endif // HW3CALLBACKS_H

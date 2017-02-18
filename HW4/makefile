@@ -1,5 +1,5 @@
-SRC=hw4.cc ../HW3/hw2_modified.c # change these to your source file names
-HEADERS=../HW3/hw2_modified.h Candy.h # change these to your header file names
+SRC=hw4.cc Game.cc # change these to your source file names
+HEADERS=Game.h # change these to your header file names
 LIBS=../HW2/libhw2.a  # you should use your hw2 code as a library
 CFLAGS = -Wall -Wpedantic -std=c++11 
 IFLAGS =  -I../HW2 -I../jansson/include

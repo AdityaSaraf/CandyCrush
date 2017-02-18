@@ -90,7 +90,7 @@ swap (GtkWidget *widget, gpointer user_data) {
 }
 
 void
-activate (GtkApplication *app,
+ccactivate (GtkApplication *app,
           gpointer        user_data)
 {
   GtkWidget *window;
