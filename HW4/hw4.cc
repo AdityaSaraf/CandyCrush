@@ -4,21 +4,76 @@
 
 extern "C" {
   #include <gtk/gtk.h>
+  #include <string.h>
 }
 
 Game game;
 GtkWidget *selected;
+GtkWidget *label;
+
+void setButtonImage(GtkWidget *button, const int row, const int col ) {
+  GtkWidget *icon;
+  int color = game.GetColor(row, col);
+  char filename[30];
+  strcpy(filename, "images/40x40/");
+  if (color == 0) strcat(filename, "blue.png");
+  else if (color == 1) strcat(filename, "green.png");
+  else if (color == 2) strcat(filename, "orange.png");
+  else if (color == 3) strcat(filename, "purple.png");
+  else if (color == 4) strcat(filename, "red.png");
+  else if (color == 5) strcat(filename, "yellow.png");
+  icon = gtk_image_new_from_file(filename);
+  gtk_button_set_image(GTK_BUTTON(button), icon);
+}
+
+void redraw(GtkWidget *grid) {
+  for (int i = 0; i < game.GetRows(); i++) {
+    for (int j = 0; j < game.GetCols(); j++) {
+      GtkWidget *button = gtk_grid_get_child_at(GTK_GRID(grid), j, i);
+      setButtonImage(button, i, j);
+    }
+  }
+}
 
 void ccselect(GtkWidget *widget, gpointer user_data) {
-
+  if (selected) gtk_button_set_relief(GTK_BUTTON(selected), GTK_RELIEF_NONE);
+  selected = widget;
+  gtk_button_set_relief(GTK_BUTTON(widget), GTK_RELIEF_NORMAL);
 }
 
 void ccswap(GtkWidget *widget, gpointer user_data) {
-
+  if (selected) {
+    GValue GRow = G_VALUE_INIT;
+    GValue GCol = G_VALUE_INIT;
+    g_value_init(&GRow, G_TYPE_INT);
+    g_value_init(&GCol, G_TYPE_INT);
+    gtk_container_child_get_property(GTK_CONTAINER(widget), selected, "top-attach", &GRow);
+    gtk_container_child_get_property(GTK_CONTAINER(widget), selected, "left-attach", &GCol);
+    int row = g_value_get_int(&GRow);
+    int col = g_value_get_int(&GCol);
+    int bits = *(int*) g_object_get_data(G_OBJECT(user_data), "bits");
+    // 1000 (8) = up, 0100 (4) = left, 0010 (2) = down, 0001 (1) = right. think WASD. what follows are
+    // fancy masks such that ud is 1 for up and -1 for down and lr is -1 for left and 1 for right
+    int ud = ((bits&8)>>3) + ~((bits&2)>>1)+1;
+    int lr = ~((bits&4)>>2)+1 + (bits&1);
+    if (game.Swap(row, col, row + ud, col + lr)) {
+      gtk_button_set_relief(GTK_BUTTON(selected), GTK_RELIEF_NONE);
+      selected = (GtkWidget *) 0;
+      redraw(widget);
+    } else {
+      printf("Error: cannot swap candy off board!\n");
+    }
+    g_value_unset(&GRow);
+    g_value_unset(&GCol);
+  } else {
+    printf("Error: no candy selected!\n");
+  }
 }
 
 void writeMoves() {
-
+  char msg[32] = {0};
+  g_snprintf(msg, sizeof msg, "%d moves made", game.GetMoves());
+  gtk_label_set_text(GTK_LABEL(label), msg);
 }
 
 void ccactivate (GtkApplication *app, gpointer user_data) {
@@ -41,10 +96,10 @@ void ccactivate (GtkApplication *app, gpointer user_data) {
   /* Pack the container in the window */
   gtk_container_add (GTK_CONTAINER (window), grid);
 
-  for (int i = 0; i < 6; i++) {
-    for (int j = 0; j < 6; j++) {
+  for (int i = 0; i < game.GetRows(); i++) {
+    for (int j = 0; j < game.GetCols(); j++) {
       button = gtk_button_new();
-      //setButtonImage(button, i, j);
+      setButtonImage(button, i, j);
       gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
       g_signal_connect(button, "clicked", G_CALLBACK(ccselect), grid);
       gtk_grid_attach(GTK_GRID(grid), button, j, i, 1, 1);
@@ -58,7 +113,7 @@ void ccactivate (GtkApplication *app, gpointer user_data) {
   g_object_set_data(G_OBJECT(button), "bits", upbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
   g_signal_connect_swapped(button, "clicked", G_CALLBACK(ccswap), grid);
-  gtk_grid_attach(GTK_GRID(grid), button, 1, 1, 5, 1);
+  gtk_grid_attach(GTK_GRID(grid), button, game.GetCols() + 1, 1, 5, 1);
 
   icon = gtk_image_new_from_file("images/direction/left.png");
   button = gtk_button_new();
@@ -67,7 +122,7 @@ void ccactivate (GtkApplication *app, gpointer user_data) {
   g_object_set_data(G_OBJECT(button), "bits", leftbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
   g_signal_connect_swapped(button, "clicked", G_CALLBACK(ccswap), grid);
-  gtk_grid_attach(GTK_GRID(grid), button, 1, 2, 5, 1);
+  gtk_grid_attach(GTK_GRID(grid), button, game.GetCols() + 1, 2, 5, 1);
 
   icon = gtk_image_new_from_file("images/direction/right.png");
   button = gtk_button_new();
@@ -76,7 +131,7 @@ void ccactivate (GtkApplication *app, gpointer user_data) {
   g_object_set_data(G_OBJECT(button), "bits", rightbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
   g_signal_connect_swapped(button, "clicked", G_CALLBACK(ccswap), grid);
-  gtk_grid_attach(GTK_GRID(grid), button, 1, 3, 5, 1);
+  gtk_grid_attach(GTK_GRID(grid), button, game.GetCols() + 1, 3, 5, 1);
 
   icon = gtk_image_new_from_file("images/direction/down.png");
   button = gtk_button_new();
@@ -85,11 +140,11 @@ void ccactivate (GtkApplication *app, gpointer user_data) {
   g_object_set_data(G_OBJECT(button), "bits", downbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
   g_signal_connect_swapped(button, "clicked", G_CALLBACK(ccswap), grid);
-  gtk_grid_attach(GTK_GRID(grid), button, 1, 4, 5, 1);
+  gtk_grid_attach(GTK_GRID(grid), button, game.GetCols() + 1, 4, 5, 1);
 
-  //label = gtk_label_new(NULL);
-  //gtk_grid_attach(GTK_GRID(grid), label, 1, 0, 5, 1);
-  //writeMoves();
+  label = gtk_label_new(NULL);
+  gtk_grid_attach(GTK_GRID(grid), label, game.GetCols() + 1, 0, 5, 1);
+  writeMoves();
   
 
   gtk_widget_show_all (window);

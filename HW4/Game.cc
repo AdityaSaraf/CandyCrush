@@ -82,18 +82,40 @@ void Game::Init(const char *fileName) {
         Array2D_set(boardCandies, i, j, n);
       }
     }
-    this->ApplyGravity();
+    //this->ApplyGravity();
   }
-  this->Settle();
+  //this->Settle();
 
   json_decref(gameDef);
   json_decref(gameState);
   json_decref(root);
 }
 
-void Game::Swap(const int r1, const int c1, const int r2, const int c2) {
-  Array2D_swap(boardCandies, r1, c1, r2, c2);
-  this->settle();
+int Game::GetColor(const int row, const int col) {
+  int *result = (int*) Array2D_get(boardCandies, row, col);
+  return *result;
+}
+
+int Game::GetRows() {
+  return boardCandies->rows;
+}
+
+int Game::GetCols() {
+  return boardCandies->cols;
+}
+
+int Game::GetMoves() {
+  return moves;
+}
+
+bool Game::Swap(const int r1, const int c1, const int r2, const int c2) {
+  if (true) { //can swap
+    // swap, then
+    //this->Settle();
+    return true;
+  } else { //can't swap
+    return false;
+  }
 }
 
 void Game::Settle() {
