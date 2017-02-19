@@ -92,7 +92,8 @@ void Game::Init(const char *fileName) {
 }
 
 void Game::Swap(const int r1, const int c1, const int r2, const int c2) {
-  
+  Array2D_swap(boardCandies, r1, c1, r2, c2);
+  this->settle();
 }
 
 void Game::Settle() {
