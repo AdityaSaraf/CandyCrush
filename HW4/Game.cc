@@ -73,7 +73,11 @@ void Game::Init(const char *fileName) {
   } else {
     json_t *bState = json_object_get(gameDef, "boardstate");
     boardState = deserialize(bState);
+    extOffset[boardState->cols] = {0};
 
+    for (int i = 0; i < extBoard -> cols; i++) {
+      extOffset[i] = 0;
+    }
     boardCandies = Array2D_create(boardState->rows, boardState->cols);
     for (int i = 0; i < boardCandies->rows; i++) {
       for (int j = 0; j < boardCandies->cols; j++) {
@@ -82,9 +86,9 @@ void Game::Init(const char *fileName) {
         Array2D_set(boardCandies, i, j, n);
       }
     }
-    //this->ApplyGravity();
+    this->ApplyGravity();
   }
-  //this->Settle();
+  this->Settle();
 
   json_decref(gameDef);
   json_decref(gameState);
@@ -108,33 +112,72 @@ int Game::GetMoves() {
   return moves;
 }
 
-bool Game::Swap(const int r1, const int c1, const int r2, const int c2) {
-  if (true) { //can swap
-    // swap, then
-    //this->Settle();
-    return true;
-  } else { //can't swap
-    return false;
+int Game::Swap(const int r1, const int c1, const int r2, const int c2) {
+  // swap, if no change, swap back
+  int code = Array2D_swap(boardCandies, r1, c1, r2, c2);
+  if (code < 0)
+  {
+    return -1;
   }
+  if (!this->Settle())
+  {
+    Array2D_swap(boardCandies, r1, c1, r2, c2);
+    return 0;
+  }
+  return 1;
 }
 
-void Game::Settle() {
+bool Game::Settle() {
   bool fired = false;
+  int counter = 0;
   do{
     for (int t = 0; t < 4; t++) {
-      for (int i = 0; i < boardCandies->rows; i++) {
-        for (int j = 0; j < boardCandies->cols; j++) {
+      int rows = 0;
+      int cols = 0;
+      switch (t){
+        case 0:
+          rows = boardCandies->rows-3;
+          cols = boardCandies->cols;
+          break;
+        case 1:
+          rows = boardCandies->rows;
+          cols = boardCandies->cols-3;
+          break;
+        case 2:
+          rows = boardCandies->rows-2;
+          cols = boardCandies->cols;
+          break;
+        case 3:
+          rows = boardCandies->rows;
+          cols = boardCandies->cols-2;
+          break;
+        default:
+           std::cout<<"Error, bad template call in Game.cc" << std::endl;
+           break;
+        }
+      for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
           // tries all possible templates
           // fires if template matches
           // sets fired to true if any template fired
-          fired |= this->MatchTemplate(t, i, j);
+          fired |= this->MatchTemplate(i, j, t);
         }
       }
     }
     // apply gravity
-    this->ApplyGravity();
+    if (fired)
+    {
+      this->ApplyGravity();
+      counter++;
+    }
     // if something was fired then gravity had an effect and so we should settle the board again
-  } while (fired);
+  } while (fired && counter < 1000);
+  // counter = 0 means that no template matched/no template fired
+  if (counter == 0)
+  {
+    return false;
+  }
+  return true;
 }
 
 bool Game::MatchTemplate(const int row, const int col, const int t) {
@@ -153,6 +196,7 @@ bool Game::MatchTemplate(const int row, const int col, const int t) {
     case 1:
       horizontalOffset = 1;
       matches = 3;
+      break;
     case 2:
       verticalOffset = 1;
       matches = 2;
@@ -174,8 +218,8 @@ bool Game::MatchTemplate(const int row, const int col, const int t) {
   // checks template - exits with false if template misses
   for (int i = 1; i <= matches; i++)
   {
-    candies[i] = (int*)(Array2D_get(boardCandies, row + (horizontalOffset * i), col + (verticalOffset * i)));
-    states[i] = (int*)(Array2D_get(boardState, row + (horizontalOffset * i), col + (verticalOffset * i)));
+    candies[i] = (int*)(Array2D_get(boardCandies, row + (verticalOffset * i), col + (horizontalOffset * i)));
+    states[i] = (int*)(Array2D_get(boardState, row + (verticalOffset * i), col + (horizontalOffset * i)));
     int nextColor = *candies[i];
     if (nextColor != color)
     {
@@ -224,7 +268,7 @@ void Game::ShiftDown(int startingRow, int col) {
   for (int i = startingRow; i < boardCandies->rows - 1; i++)
   {
     int* currCandy = (int*)(Array2D_get(boardCandies, i, col));
-    *currCandy = *(int*)(Array2D_get(boardCandies, i, col));
+    *currCandy = *(int*)(Array2D_get(boardCandies, i+1, col));
   }
   // fill in the highest row with the extension board
   int* highestCandy = (int*)(Array2D_get(boardCandies, boardCandies->rows -1, col));

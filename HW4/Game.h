@@ -13,8 +13,8 @@ class Game {
   int GetRows();
   int GetCols();
   int GetMoves();
-  bool Swap(const int r1, const int c1, const int r2, const int c2);
-  void Settle();
+  int Swap(const int r1, const int c1, const int r2, const int c2);
+  bool Settle();
   bool MatchTemplate(const int row, const int col, const int t);
   void ApplyGravity();
   ~Game();

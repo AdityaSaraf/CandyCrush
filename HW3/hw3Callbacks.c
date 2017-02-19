@@ -3,6 +3,7 @@
 #include <string.h>
 #include <gtk/gtk.h>
 #include <jansson.h>
+#include <iostream>
 
 extern "C" {
   #include "hw2_modified.h"

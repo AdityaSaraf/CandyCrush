@@ -1,6 +1,7 @@
 #include <string>
 
 #include "Game.h"
+#include <iostream>
 
 extern "C" {
   #include <gtk/gtk.h>
@@ -56,11 +57,18 @@ void ccswap(GtkWidget *widget, gpointer user_data) {
     // fancy masks such that ud is 1 for up and -1 for down and lr is -1 for left and 1 for right
     int ud = ((bits&8)>>3) + ~((bits&2)>>1)+1;
     int lr = ~((bits&4)>>2)+1 + (bits&1);
-    if (game.Swap(row, col, row + ud, col + lr)) {
+    int code = game.Swap(row, col, row + ud, col + lr);
+    if (code == 1) {
       gtk_button_set_relief(GTK_BUTTON(selected), GTK_RELIEF_NONE);
       selected = (GtkWidget *) 0;
       redraw(widget);
-    } else {
+    }
+    else if (code == 0) // cannot settle
+    {
+    	std::cout<<"Error: swap wouldn't result in removal of any candies!"<<std::endl;
+    }
+    else
+    {
       printf("Error: cannot swap candy off board!\n");
     }
     g_value_unset(&GRow);
