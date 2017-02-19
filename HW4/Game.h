@@ -23,6 +23,7 @@ class Game {
   Array2D extBoard;
   Array2D boardState;
   Array2D boardCandies;
+  void ShiftDown(int startingRow, int col);
 
   Game(const Game &copy) = delete;
   Game &operator=(Game rhs) = delete;
