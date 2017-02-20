@@ -195,13 +195,21 @@ int main(int argc, char **argv) {
   // since we'll have an array of Candys, instead of
   // ints, and hw2 specifies ints, tho we could just
   // modify that method
-  GtkApplication *app;
-
-  app = gtk_application_new("com.github.adityasaraf.CandyCrush", G_APPLICATION_HANDLES_OPEN);
-  g_signal_connect(app, "open", G_CALLBACK(ccopen), NULL);
-  g_signal_connect(app, "activate", G_CALLBACK(ccactivate), NULL);
-  status = g_application_run(G_APPLICATION(app), argc, argv);
-  g_object_unref(app);
+  
+  	if (argc != 2)
+	{
+		printf("usage: %s filename\n", argv[0]);
+		return EXIT_FAILURE;
+	}
+	else
+	{
+		GtkApplication *app;
+	  app = gtk_application_new("com.github.adityasaraf.CandyCrush", G_APPLICATION_HANDLES_OPEN);
+	  g_signal_connect(app, "open", G_CALLBACK(ccopen), NULL);
+	  g_signal_connect(app, "activate", G_CALLBACK(ccactivate), NULL);
+	  status = g_application_run(G_APPLICATION(app), argc, argv);
+	  g_object_unref(app);
+	}
 
   return status;
 }

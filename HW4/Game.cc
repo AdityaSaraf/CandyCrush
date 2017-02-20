@@ -166,6 +166,7 @@ bool Game::Settle() {
     for (int t = 0; t < 4; t++) {
       int rows = 0;
       int cols = 0;
+      // we don't need to check to the very end of the board
       switch (t){
         case 0:
           rows = boardCandies->rows-3;
@@ -199,38 +200,8 @@ bool Game::Settle() {
     // apply gravity
     if (fired)
     {
-      // to help debug
-        int *cd = new int[boardCandies->rows*boardCandies->cols];
-        for (int i = 0; i < boardCandies->rows; ++i)
-        {
-          for (int k = 0; k < boardCandies->cols; k++)
-          {
-            cd[i*boardCandies->cols+k] = *(int*)(Array2D_get(boardCandies, i, k));
-          }
-        }
       this->ApplyGravity();
       counter++;
-    }
-      // to help debug
-        int *cd = new int[boardCandies->rows*boardCandies->cols];
-        for (int i = 0; i < boardCandies->rows; ++i)
-        {
-          for (int k = 0; k < boardCandies->cols; k++)
-          {
-            cd[i*boardCandies->cols+k] = *(int*)(Array2D_get(boardCandies, i, k));
-          }
-        }
-    if (counter == 7)
-    {
-      // to help debug
-        int *cd = new int[boardCandies->rows*boardCandies->cols];
-        for (int i = 0; i < boardCandies->rows; ++i)
-        {
-          for (int k = 0; k < boardCandies->cols; k++)
-          {
-            cd[i*boardCandies->cols+k] = *(int*)(Array2D_get(boardCandies, i, k));
-          }
-        }
     }
     // if something was fired then gravity had an effect and so we should settle the board again
   } while (fired && counter < 1000);
@@ -319,12 +290,6 @@ void Game::ApplyGravity() {
       // everything above cap is from the extension board and so cannot be -1
       if (i >= cap)
       {
-        // to help debug
-        int *cd = new int[boardCandies->rows];
-        for (int k = 0; k < boardCandies->rows; k++)
-        {
-          cd[k] = *(int*)(Array2D_get(boardCandies, k, j));
-        }
         break;
       }
       // keep replacing with the upper candy until candy is valid
