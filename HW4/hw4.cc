@@ -36,7 +36,7 @@ void setButtonImage(GtkWidget *button, const int row, const int col ) {
 void redraw(GtkWidget *grid) {
   for (int i = 0; i < game.GetRows(); i++) {
     for (int j = 0; j < game.GetCols(); j++) {
-      GtkWidget *button = gtk_grid_get_child_at(GTK_GRID(grid), j, game.GetRows() - i - 1);
+      GtkWidget *button = gtk_grid_get_child_at(GTK_GRID(grid), j, i);
       setButtonImage(button, i, j);
     }
   }
@@ -116,7 +116,7 @@ void ccactivate (GtkApplication *app, gpointer user_data) {
       setButtonImage(button, i, j);
       gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
       g_signal_connect(button, "clicked", G_CALLBACK(ccselect), grid);
-      gtk_grid_attach(GTK_GRID(grid), button, j, game.GetRows() - i - 1, 1, 1);
+      gtk_grid_attach(GTK_GRID(grid), button, j, i, 1, 1);
     }
   }
   
