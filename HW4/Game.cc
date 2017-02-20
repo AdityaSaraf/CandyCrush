@@ -105,7 +105,7 @@ void Game::Init(const char *fileName) {
     }
     this->ApplyGravity();
   }
-  this->Settle();
+  //this->Settle();
 
   json_decref(gameDef);
   json_decref(gameState);
@@ -272,6 +272,12 @@ void Game::ApplyGravity() {
       // everything above cap is from the extension board and so cannot be -1
       if (i >= cap)
       {
+        // to help debug
+        int *candies = new int[boardCandies->rows];
+        for (int k = 0; k < boardCandies->rows; k++)
+        {
+          candies[k] = *(int*)(Array2D_get(boardCandies, k, j));
+        }
         break;
       }
       // keep replacing with the upper candy until candy is valid
@@ -291,6 +297,7 @@ void Game::ShiftDown(int startingRow, int col) {
   {
     int* currCandy = (int*)(Array2D_get(boardCandies, i, col));
     *currCandy = *(int*)(Array2D_get(boardCandies, i+1, col));
+
   }
   // fill in the highest row with the extension board
   int* highestCandy = (int*)(Array2D_get(boardCandies, boardCandies->rows -1, col));
