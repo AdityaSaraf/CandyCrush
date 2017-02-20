@@ -14,16 +14,19 @@ class Game {
   int GetRows();
   int GetCols();
   int GetMoves();
+  int GetScore();
   int Swap(const int r1, const int c1, const int r2, const int c2);
   bool Settle();
   bool MatchTemplate(const int row, const int col, const int t);
   void ApplyGravity();
+  bool IsWon();
   ~Game();
 
  private:
   int gameID;
   int moves;
   int score;
+  int colors;
   int *extOffset;
   Array2D extBoard;
   Array2D boardState;

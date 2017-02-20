@@ -10,7 +10,20 @@ extern "C" {
 
 Game game;
 GtkWidget *selected;
-GtkWidget *label;
+GtkWidget *moves;
+GtkWidget *score;
+
+void writeMoves() {
+  char msg[32] = {0};
+  g_snprintf(msg, sizeof msg, "%d moves made", game.GetMoves());
+  gtk_label_set_text(GTK_LABEL(moves), msg);
+}
+
+void writeScore() {
+  char msg[32] = {0};
+  g_snprintf(msg, sizeof msg, "Score: %d", game.GetScore());
+  gtk_label_set_text(GTK_LABEL(score), msg);
+}
 
 void setButtonImage(GtkWidget *button, const int row, const int col ) {
   GtkWidget *icon;
@@ -67,7 +80,12 @@ void ccswap(GtkWidget *widget, gpointer user_data) {
     if (code == 1) {
       gtk_button_set_relief(GTK_BUTTON(selected), GTK_RELIEF_NONE);
       selected = (GtkWidget *) 0;
+      writeMoves();
+      writeScore();
       redraw(widget);
+      if (game.IsWon()) {
+        std::cout<<"You've won!"<<std::endl;
+      }
     }
     else if (code == 0) // cannot settle
     {
@@ -84,12 +102,6 @@ void ccswap(GtkWidget *widget, gpointer user_data) {
   }
 }
 
-void writeMoves() {
-  char msg[32] = {0};
-  g_snprintf(msg, sizeof msg, "%d moves made", game.GetMoves());
-  gtk_label_set_text(GTK_LABEL(label), msg);
-}
-
 void ccactivate (GtkApplication *app, gpointer user_data) {
   GtkWidget *window;
   GtkWidget *grid;
@@ -99,7 +111,7 @@ void ccactivate (GtkApplication *app, gpointer user_data) {
   /* create a new window, and set its title */
   window = gtk_application_window_new (app);
   gtk_window_set_title (GTK_WINDOW (window), "CandyCrush");
-  gtk_window_set_default_size (GTK_WINDOW (window), 600, 600);
+  gtk_window_set_default_size (GTK_WINDOW (window), 400, 300);
   gtk_container_set_border_width (GTK_CONTAINER (window), 10);
 
   /* Here we construct the container that is going pack our buttons */
@@ -127,7 +139,7 @@ void ccactivate (GtkApplication *app, gpointer user_data) {
   g_object_set_data(G_OBJECT(button), "bits", upbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
   g_signal_connect_swapped(button, "clicked", G_CALLBACK(ccswap), grid);
-  gtk_grid_attach(GTK_GRID(grid), button, game.GetCols() + 1, 1, 5, 1);
+  gtk_grid_attach(GTK_GRID(grid), button, game.GetCols() + 1, 2, 5, 1);
 
   icon = gtk_image_new_from_file("images/direction/left.png");
   button = gtk_button_new();
@@ -136,7 +148,7 @@ void ccactivate (GtkApplication *app, gpointer user_data) {
   g_object_set_data(G_OBJECT(button), "bits", leftbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
   g_signal_connect_swapped(button, "clicked", G_CALLBACK(ccswap), grid);
-  gtk_grid_attach(GTK_GRID(grid), button, game.GetCols() + 1, 2, 5, 1);
+  gtk_grid_attach(GTK_GRID(grid), button, game.GetCols() + 1, 3, 5, 1);
 
   icon = gtk_image_new_from_file("images/direction/right.png");
   button = gtk_button_new();
@@ -145,7 +157,7 @@ void ccactivate (GtkApplication *app, gpointer user_data) {
   g_object_set_data(G_OBJECT(button), "bits", rightbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
   g_signal_connect_swapped(button, "clicked", G_CALLBACK(ccswap), grid);
-  gtk_grid_attach(GTK_GRID(grid), button, game.GetCols() + 1, 3, 5, 1);
+  gtk_grid_attach(GTK_GRID(grid), button, game.GetCols() + 1, 4, 5, 1);
 
   icon = gtk_image_new_from_file("images/direction/down.png");
   button = gtk_button_new();
@@ -154,12 +166,15 @@ void ccactivate (GtkApplication *app, gpointer user_data) {
   g_object_set_data(G_OBJECT(button), "bits", downbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
   g_signal_connect_swapped(button, "clicked", G_CALLBACK(ccswap), grid);
-  gtk_grid_attach(GTK_GRID(grid), button, game.GetCols() + 1, 4, 5, 1);
+  gtk_grid_attach(GTK_GRID(grid), button, game.GetCols() + 1, 5, 5, 1);
 
-  label = gtk_label_new(NULL);
-  gtk_grid_attach(GTK_GRID(grid), label, game.GetCols() + 1, 0, 5, 1);
+  moves = gtk_label_new(NULL);
+  gtk_grid_attach(GTK_GRID(grid), moves, game.GetCols() + 1, 0, 5, 1);
   writeMoves();
-  
+
+  score = gtk_label_new(NULL);
+  gtk_grid_attach(GTK_GRID(grid), score, game.GetCols() + 1, 1, 5, 1);
+  writeScore();
 
   gtk_widget_show_all (window);
 }
