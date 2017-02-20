@@ -105,7 +105,7 @@ void Game::Init(const char *fileName) {
     }
     this->ApplyGravity();
   }
-  //this->Settle();
+  this->Settle();
 
   json_decref(gameDef);
   json_decref(gameState);
@@ -153,6 +153,7 @@ bool Game::Settle() {
   bool fired = false;
   int counter = 0;
   do{
+    fired = false;
     for (int t = 0; t < 4; t++) {
       int rows = 0;
       int cols = 0;
@@ -189,8 +190,39 @@ bool Game::Settle() {
     // apply gravity
     if (fired)
     {
+      // to help debug
+        int *cd = new int[boardCandies->rows*boardCandies->cols];
+        for (int i = 0; i < boardCandies->rows; ++i)
+        {
+          for (int k = 0; k < boardCandies->cols; k++)
+          {
+            cd[i*boardCandies->cols+k] = *(int*)(Array2D_get(boardCandies, i, k));
+          }
+        }
       this->ApplyGravity();
       counter++;
+    }
+      // to help debug
+        int *cd = new int[boardCandies->rows*boardCandies->cols];
+        for (int i = 0; i < boardCandies->rows; ++i)
+        {
+          for (int k = 0; k < boardCandies->cols; k++)
+          {
+            cd[i*boardCandies->cols+k] = *(int*)(Array2D_get(boardCandies, i, k));
+          }
+        }
+    if (counter == 7)
+    {
+      // to help debug
+        int *cd = new int[boardCandies->rows*boardCandies->cols];
+        for (int i = 0; i < boardCandies->rows; ++i)
+        {
+          for (int k = 0; k < boardCandies->cols; k++)
+          {
+            cd[i*boardCandies->cols+k] = *(int*)(Array2D_get(boardCandies, i, k));
+          }
+        }
+      int test = 0;
     }
     // if something was fired then gravity had an effect and so we should settle the board again
   } while (fired && counter < 1000);
@@ -237,6 +269,10 @@ bool Game::MatchTemplate(const int row, const int col, const int t) {
   candies[0] = (int*)(Array2D_get(boardCandies, row, col));
   states[0] = (int*)(Array2D_get(boardState, row, col));
   int color = *candies[0];
+  if (color == -1)
+  {
+    return false;
+  }
   // checks template - exits with false if template misses
   for (int i = 1; i <= matches; i++)
   {
@@ -273,10 +309,10 @@ void Game::ApplyGravity() {
       if (i >= cap)
       {
         // to help debug
-        int *candies = new int[boardCandies->rows];
+        int *cd = new int[boardCandies->rows];
         for (int k = 0; k < boardCandies->rows; k++)
         {
-          candies[k] = *(int*)(Array2D_get(boardCandies, k, j));
+          cd[k] = *(int*)(Array2D_get(boardCandies, k, j));
         }
         break;
       }
