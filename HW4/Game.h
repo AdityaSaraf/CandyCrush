@@ -10,6 +10,7 @@ class Game {
   Game();
   void Init(const char *fileName);
   int GetColor(const int row, const int col);
+  int GetState(const int row, const int col);
   int GetRows();
   int GetCols();
   int GetMoves();

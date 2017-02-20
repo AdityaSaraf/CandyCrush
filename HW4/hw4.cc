@@ -14,10 +14,16 @@ GtkWidget *label;
 
 void setButtonImage(GtkWidget *button, const int row, const int col ) {
   GtkWidget *icon;
-  int color = game.GetColor(row, col);
-  char filename[30];
-  strcpy(filename, "images/40x40/");
-  if (color == 0) strcat(filename, "blue.png");
+  int color = game.GetColor(game.GetRows() - row - 1, col);
+  int state = game.GetState(game.GetRows() - row - 1, col);
+  char filename[50];
+  strcpy(filename, "images/regular/");
+  if (state == 0) strcat(filename, "state0/");
+  else if (state == 1) strcat(filename, "state1/");
+  else if (state == 2) strcat(filename, "state2/");
+
+  if (color == -1) strcat(filename, "nocolor.png");
+  else if (color == 0) strcat(filename, "blue.png");
   else if (color == 1) strcat(filename, "green.png");
   else if (color == 2) strcat(filename, "orange.png");
   else if (color == 3) strcat(filename, "purple.png");
@@ -30,7 +36,7 @@ void setButtonImage(GtkWidget *button, const int row, const int col ) {
 void redraw(GtkWidget *grid) {
   for (int i = 0; i < game.GetRows(); i++) {
     for (int j = 0; j < game.GetCols(); j++) {
-      GtkWidget *button = gtk_grid_get_child_at(GTK_GRID(grid), j, i);
+      GtkWidget *button = gtk_grid_get_child_at(GTK_GRID(grid), j, game.GetRows() - i - 1);
       setButtonImage(button, i, j);
     }
   }
@@ -57,7 +63,7 @@ void ccswap(GtkWidget *widget, gpointer user_data) {
     // fancy masks such that ud is 1 for up and -1 for down and lr is -1 for left and 1 for right
     int ud = ((bits&8)>>3) + ~((bits&2)>>1)+1;
     int lr = ~((bits&4)>>2)+1 + (bits&1);
-    int code = game.Swap(row, col, row + ud, col + lr);
+    int code = game.Swap(game.GetRows() - row - 1, col, game.GetRows() - row - 1 + ud, col + lr);
     if (code == 1) {
       gtk_button_set_relief(GTK_BUTTON(selected), GTK_RELIEF_NONE);
       selected = (GtkWidget *) 0;
@@ -110,7 +116,7 @@ void ccactivate (GtkApplication *app, gpointer user_data) {
       setButtonImage(button, i, j);
       gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
       g_signal_connect(button, "clicked", G_CALLBACK(ccselect), grid);
-      gtk_grid_attach(GTK_GRID(grid), button, j, i, 1, 1);
+      gtk_grid_attach(GTK_GRID(grid), button, j, game.GetRows() - i - 1, 1, 1);
     }
   }
   

@@ -21,7 +21,7 @@ Array2D deserialize(json_t *root) {
     el = json_array_get(data, (size_t) i);
     int *n = (int*) malloc(sizeof(int));
     *n = json_integer_value(el);
-    Array2D_set(result, result->rows - (i/cols) - 1, i%cols, n);
+    Array2D_set(result, i/cols, i%cols, n);
   }
   json_decref(el);
   json_decref(data);
@@ -52,8 +52,26 @@ void Game::Init(const char *fileName) {
   if (gameState) {
     // get boardCandies and boardState from gameState, moves, score, offset
     json_t *bCandies = json_object_get(gameState, "boardcandies");
-    boardCandies = deserialize(bCandies);
+    json_t *jrows = json_object_get(bCandies, "rows");
+    json_t *jcols = json_object_get(bCandies, "columns");
+    int rows = json_integer_value(jrows);
+    int cols = json_integer_value(jcols);
+    json_decref(jrows);
+    json_decref(jcols);
 
+    boardCandies = Array2D_create(rows, cols);
+    json_t *data = json_object_get(root, "data");
+    json_t *el;
+    for (int i = 0; i < (rows * cols); i++) {
+      el = json_array_get(data, (size_t) i);
+      json_t *num = json_object_get(el, "color");
+      int *n = (int*) malloc(sizeof(int));
+      *n = json_integer_value(num);
+      Array2D_set(boardCandies, i/cols, i%cols, n);
+    }
+    json_decref(data);
+    json_decref(bCandies);
+    
     json_t *bState = json_object_get(gameState, "boardstate");
     boardState = deserialize(bState);
     json_t *jmoves = json_object_get(gameState, "moves");
@@ -65,7 +83,6 @@ void Game::Init(const char *fileName) {
     json_decref(jscore);
     
     json_t *joffset = json_object_get(gameState, "extensionoffset");
-    json_t *el;
     for (int i = 0; i < (int) json_array_size(joffset); i++) {
       el = json_array_get(joffset, (size_t) i);
       extOffset[i] = json_integer_value(el);
@@ -97,6 +114,11 @@ void Game::Init(const char *fileName) {
 
 int Game::GetColor(const int row, const int col) {
   int *result = (int*) Array2D_get(boardCandies, row, col);
+  return *result;
+}
+
+int Game::GetState(const int row, const int col) {
+  int *result = (int*) Array2D_get(boardState, row, col);
   return *result;
 }
 
@@ -279,6 +301,7 @@ void Game::ShiftDown(int startingRow, int col) {
 }
 
 Game::~Game() {
+  free(extOffset);
   Array2D_destroy(boardCandies, (Array2DDataFreeFnPtr) &free);
   Array2D_destroy(boardState, (Array2DDataFreeFnPtr) &free);
   Array2D_destroy(extBoard, (Array2DDataFreeFnPtr) &free);
