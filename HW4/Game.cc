@@ -222,7 +222,6 @@ bool Game::Settle() {
             cd[i*boardCandies->cols+k] = *(int*)(Array2D_get(boardCandies, i, k));
           }
         }
-      int test = 0;
     }
     // if something was fired then gravity had an effect and so we should settle the board again
   } while (fired && counter < 1000);
@@ -292,7 +291,7 @@ bool Game::MatchTemplate(const int row, const int col, const int t) {
     // sets the candy "color" to -1
     *candies[i] = -1;
     // decrement board state
-    (*states[i])--;
+    if (*states[i] > 0) (*states[i])--;
   }
   // free the arrays, not the associated pointers
   delete[] states;
@@ -344,7 +343,7 @@ void Game::ShiftDown(int startingRow, int col) {
 }
 
 Game::~Game() {
-  free(extOffset);
+  //free(extOffset);
   Array2D_destroy(boardCandies, (Array2DDataFreeFnPtr) &free);
   Array2D_destroy(boardState, (Array2DDataFreeFnPtr) &free);
   Array2D_destroy(extBoard, (Array2DDataFreeFnPtr) &free);
