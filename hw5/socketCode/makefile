@@ -12,7 +12,10 @@ LDFLAGS =
 HEADERS = ClientSocket.h CSE333.h CSE333Socket.h ServerSocket.h
 OBJS = ClientSocket.o CSE333Socket.o ServerSocket.o Verify333.o
 
-all: $(OBJS)
+all: socket libsocket.a
+
+libsocket.a: $(OBJS) $(HEADERS)
+	$(AR) $(ARFLAGS) libsocket.a $(OBJS)
 
 %.o: %.cc $(HEADERS)
 	$(CXX) -std=c++11 $(CFLAGS) -c $<
