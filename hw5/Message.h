@@ -6,7 +6,8 @@
 
 class Message {
  public:
-  Message();
+  Message(char *msg, int length);
+  char *Serialize(int *retLength);
 
  protected:
 };

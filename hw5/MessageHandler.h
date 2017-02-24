@@ -10,7 +10,7 @@
 class MessageHandler {
  public:
   MessageHandler(hw5_net::ClientSocket csocket);
-  void GetNextMessage();
+  Message GetNextMessage();
   void SendMessage(Message msg);
 
  private:
