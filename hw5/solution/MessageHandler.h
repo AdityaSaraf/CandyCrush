@@ -1,7 +1,7 @@
 #ifndef MESSAGEM_H
 #define MESSAGEM_H
 
-#include "socketCode/ClientSocket.h"
+#include "ClientSocket.h"
 #include "Message.h"
 
 // MessageHandler will receive messages from the socket and decode them
@@ -9,7 +9,7 @@
 
 class MessageHandler {
  public:
-  MessageHandler(hw5_net::ClientSocket csocket);
+  MessageHandler(int fd);
   Message GetNextMessage();
   void SendMessage(Message msg);
 

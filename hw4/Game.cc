@@ -37,7 +37,7 @@ Game::Game() {
 void Game::Init(const char *fileName) {
   json_t *root;
   json_error_t error;
-  root = json_load_file(fileName, 0, &error);
+  root = json_loads(fileName, 0, &error);
 
   json_t *gameDef = json_object_get(root, "gamedef");
   json_t *gameState = json_object_get(root, "gamestate");
