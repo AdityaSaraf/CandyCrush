@@ -18,18 +18,23 @@ extern "C" {
 Game game;
 
 void usage(const char *exeName) {
-
+  cout << "Usage: " << exeName << " <hostname> <port>" << endl;
 }
 
 int main(int argc, char **argv) {
   
-  if (argc != 3) usage(argv[0]);
+  if (argc != 3) 
+  {
+    usage(argv[0]);
+    return EXIT_FAILURE;
+  }
 
   int serverPort;
   try {
     serverPort = stoi(argv[2]);
   } catch (...) {
     usage(argv[0]);
+    return 1;
   }
 
   try {

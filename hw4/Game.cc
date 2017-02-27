@@ -328,7 +328,8 @@ bool Game::IsWon() {
   return true;
 }
 
-Game::~Game() {
+void Game::SerializeCurrentState()
+{
   json_t *obj = json_object();
   json_t *gamedef = json_object();
 
@@ -414,6 +415,10 @@ Game::~Game() {
   json_object_set(obj, "gamestate", gamestate);
 
   json_dump_file(obj, "test.out", 0);
+}
+
+Game::~Game() {
+  SerializeCurrentState();
   json_decref(el);
   json_decref(elObj);
   json_decref(cArr);
@@ -437,7 +442,6 @@ Game::~Game() {
   json_decref(gamestate);
   json_decref(gamedef);
   json_decref(obj);
-
   Array2D_destroy(boardCandies, (Array2DDataFreeFnPtr) &free);
   Array2D_destroy(boardState, (Array2DDataFreeFnPtr) &free);
   Array2D_destroy(extBoard, (Array2DDataFreeFnPtr) &free);

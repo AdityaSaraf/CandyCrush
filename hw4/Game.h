@@ -32,6 +32,7 @@ class Game {
   Array2D boardState;
   Array2D boardCandies;
   void ShiftDown(int startingRow, int col);
+  void SerializeCurrentState(); 
 
   Game(const Game &copy) = delete;
   Game &operator=(Game rhs) = delete;
