@@ -2,6 +2,7 @@
 // with the callback functions being mainly message sending
 #include <iostream>
 #include <cstdlib>
+#include <string>
 
 using namespace std;
 
@@ -9,13 +10,75 @@ using namespace std;
 #include "ClientSocket.h"
 #include "MessageHandler.h"
 #include "Message.h"
+#include "../../hw4/Game.h"
 
 extern "C" {
   #include <jansson.h>
   #include <gtk/gtk.h>
+  #include <string.h>
 }
 
-/*
+typedef struct gridMsg_t{
+  GtkWidget *grid;
+  MessageHandler *mhp;
+}* GridMsg;
+
+
+GtkWidget *selected;
+GtkWidget *moves;
+GtkWidget *score;
+Game game;
+
+void writeMoves() {
+  char msg[32] = {0};
+  g_snprintf(msg, sizeof msg, "%d moves made", game.GetMoves());
+  gtk_label_set_text(GTK_LABEL(moves), msg);
+}
+
+void writeScore() {
+  char msg[32] = {0};
+  g_snprintf(msg, sizeof msg, "Score: %d", game.GetScore());
+  gtk_label_set_text(GTK_LABEL(score), msg);
+}
+
+void setButtonImage(GtkWidget *button, const int row, const int col ) {
+//Boardstate": {"game.GetRows()": 6, "columns": 6, "data": [2, 1, 2, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1]}}}}'
+
+  GtkWidget *icon;
+  int color = game.GetColor(game.GetRows() - row - 1, col);
+  int state = game.GetState(game.GetRows() - row - 1, col);
+  char filename[50];
+  strcpy(filename, "images/regular/");
+  if (state == 0) strcat(filename, "state0/");
+  else if (state == 1) strcat(filename, "state1/");
+  else if (state == 2) strcat(filename, "state2/");
+
+  if (color == -1) strcat(filename, "nocolor.png");
+  else if (color == 0) strcat(filename, "blue.png");
+  else if (color == 1) strcat(filename, "green.png");
+  else if (color == 2) strcat(filename, "orange.png");
+  else if (color == 3) strcat(filename, "purple.png");
+  else if (color == 4) strcat(filename, "red.png");
+  else if (color == 5) strcat(filename, "yellow.png");
+  icon = gtk_image_new_from_file(filename);
+  gtk_button_set_image(GTK_BUTTON(button), icon);
+}
+
+void redraw(GtkWidget *grid) {
+  for (int i = 0; i < game.GetRows(); i++) {
+    for (int j = 0; j < game.GetCols(); j++) {
+      GtkWidget *button = gtk_grid_get_child_at(GTK_GRID(grid), j, i);
+      setButtonImage(button, i, j);
+    }
+  }
+}
+
+void ccselect(GtkWidget *widget, gpointer user_data) {
+  if (selected) gtk_button_set_relief(GTK_BUTTON(selected), GTK_RELIEF_NONE);
+  selected = widget;
+  gtk_button_set_relief(GTK_BUTTON(widget), GTK_RELIEF_NORMAL);
+}
+
 static void ccswap(GtkWidget *widget, gpointer user_data) {
   if (selected) {
     GValue GRow = G_VALUE_INIT;
@@ -41,15 +104,16 @@ static void ccswap(GtkWidget *widget, gpointer user_data) {
     free(jmove);
     json_decref(root);
     
+  } else {
+    printf("Error: no candy selected!\n");
   }
 }
-*/
+
 static void ccactivate(GtkApplication *app, gpointer user_data) {
-/*  GtkWidget *window;
+  GtkWidget *window;
   GtkWidget *grid;
   GtkWidget *button;
   GtkWidget *icon;
-
   // create a new window, and set its title
   window = gtk_application_window_new (app);
   gtk_window_set_title (GTK_WINDOW (window), "CandyCrush");
@@ -60,6 +124,10 @@ static void ccactivate(GtkApplication *app, gpointer user_data) {
   grid = gtk_grid_new ();
   gtk_grid_set_row_spacing(GTK_GRID(grid), 5);
   gtk_grid_set_column_spacing(GTK_GRID(grid), 5);
+
+  GridMsg gridMsg = (GridMsg)malloc(sizeof(struct gridMsg_t));
+  gridMsg->grid = grid;
+  gridMsg->mhp = (MessageHandler*)(user_data);
 
   // Pack the container in the window
   gtk_container_add (GTK_CONTAINER (window), grid);
@@ -80,7 +148,7 @@ static void ccactivate(GtkApplication *app, gpointer user_data) {
   *upbits = 3;
   g_object_set_data(G_OBJECT(button), "bits", upbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
-  g_signal_connect_swapped(button, "clicked", G_CALLBACK(ccswap), grid);
+  g_signal_connect_swapped(button, "clicked", G_CALLBACK(ccswap), (gpointer) gridMsg);
   gtk_grid_attach(GTK_GRID(grid), button, game.GetCols() + 1, 2, 5, 1);
 
   icon = gtk_image_new_from_file("images/direction/left.png");
@@ -89,7 +157,7 @@ static void ccactivate(GtkApplication *app, gpointer user_data) {
   *leftbits = 0;
   g_object_set_data(G_OBJECT(button), "bits", leftbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
-  g_signal_connect_swapped(button, "clicked", G_CALLBACK(ccswap), grid);
+  g_signal_connect_swapped(button, "clicked", G_CALLBACK(ccswap), (gpointer) gridMsg);
   gtk_grid_attach(GTK_GRID(grid), button, game.GetCols() + 1, 3, 5, 1);
 
   icon = gtk_image_new_from_file("images/direction/right.png");
@@ -98,7 +166,7 @@ static void ccactivate(GtkApplication *app, gpointer user_data) {
   *rightbits = 1;
   g_object_set_data(G_OBJECT(button), "bits", rightbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
-  g_signal_connect_swapped(button, "clicked", G_CALLBACK(ccswap), grid);
+  g_signal_connect_swapped(button, "clicked", G_CALLBACK(ccswap), (gpointer) gridMsg);
   gtk_grid_attach(GTK_GRID(grid), button, game.GetCols() + 1, 4, 5, 1);
 
   icon = gtk_image_new_from_file("images/direction/down.png");
@@ -107,7 +175,7 @@ static void ccactivate(GtkApplication *app, gpointer user_data) {
   *downbits = 2;
   g_object_set_data(G_OBJECT(button), "bits", downbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
-  g_signal_connect_swapped(button, "clicked", G_CALLBACK(ccswap), grid);
+  g_signal_connect_swapped(button, "clicked", G_CALLBACK(ccswap), (gpointer) gridMsg);
   gtk_grid_attach(GTK_GRID(grid), button, game.GetCols() + 1, 5, 5, 1);
 
   moves = gtk_label_new(NULL);
@@ -118,7 +186,7 @@ static void ccactivate(GtkApplication *app, gpointer user_data) {
   gtk_grid_attach(GTK_GRID(grid), score, game.GetCols() + 1, 1, 5, 1);
   writeScore();
 
-  gtk_widget_show_all (window); */
+  gtk_widget_show_all (window); 
 }
 
 static void ccopen(GtkApplication *app, GFile **files, gint n_files, const gchar *hint, gpointer user_data) {
@@ -127,13 +195,17 @@ static void ccopen(GtkApplication *app, GFile **files, gint n_files, const gchar
   root = json_load_file(g_file_get_path(files[0]), 0, &error);
   json_t *action = json_string("helloack");
   json_object_set_new(root, "action", action);
-  char *gameinstance = json_dumps(root, 0);
+  const char *gameinstance = json_dumps(root, 0);
+  game.Init(gameinstance);
   string helloack(gameinstance);
-  free(gameinstance);
+  free((char*)gameinstance);
   HelloackMessage msg(helloack);
   MessageHandler *mhp = (MessageHandler *) user_data;
   mhp->SendMessage(msg);
   g_application_activate(G_APPLICATION(app));
+  // json_decref(jrows);
+  // json_decref(jcols);
+  // json_decref(bCandies);
 }
 
 void usage(const char *name) {
