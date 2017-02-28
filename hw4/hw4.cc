@@ -26,6 +26,8 @@ void writeScore() {
 }
 
 void setButtonImage(GtkWidget *button, const int row, const int col ) {
+ardstate": {"rows": 6, "columns": 6, "data": [2, 1, 2, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1]}}}}'
+
   GtkWidget *icon;
   int color = game.GetColor(game.GetRows() - row - 1, col);
   int state = game.GetState(game.GetRows() - row - 1, col);

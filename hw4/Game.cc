@@ -15,7 +15,6 @@ Array2D deserialize(json_t *root) {
   json_decref(jcols);
   Array2D result = Array2D_create(rows, cols);
   json_t *data = json_object_get(root, "data");
-  printf("%d, %d\n", result->rows, result->cols);
   json_t *el;
   for (int i = 0; i < (rows * cols); i++) {
     el = json_array_get(data, (size_t) i);
@@ -26,7 +25,6 @@ Array2D deserialize(json_t *root) {
   json_decref(el);
   json_decref(data);
   //json_decref(root);
-  printf("%d, %d\n", result->rows, result->cols);
   return result;
 }
 
@@ -328,10 +326,12 @@ bool Game::IsWon() {
   return true;
 }
 
-void Game::SerializeCurrentState()
+std::string Game::SerializeCurrentState()
 {
   json_t *obj = json_object();
   json_t *gamedef = json_object();
+  json_t *action = json_string("update");
+  json_object_set_new(obj, "action", action);
 
   json_t *gameid = json_integer(gameID);
   json_object_set(gamedef, "gameid", gameid);
@@ -413,12 +413,10 @@ void Game::SerializeCurrentState()
   json_object_set(gamestate, "boardcandies", bCandies);
   
   json_object_set(obj, "gamestate", gamestate);
+  char *jresult = json_dumps(obj, 0);
+  std::string result(jresult);
+  free(jresult);
 
-  json_dump_file(obj, "test.out", 0);
-}
-
-Game::~Game() {
-  SerializeCurrentState();
   json_decref(el);
   json_decref(elObj);
   json_decref(cArr);
@@ -442,6 +440,11 @@ Game::~Game() {
   json_decref(gamestate);
   json_decref(gamedef);
   json_decref(obj);
+  return result;
+}
+
+Game::~Game() {
+  SerializeCurrentState();
   Array2D_destroy(boardCandies, (Array2DDataFreeFnPtr) &free);
   Array2D_destroy(boardState, (Array2DDataFreeFnPtr) &free);
   Array2D_destroy(extBoard, (Array2DDataFreeFnPtr) &free);

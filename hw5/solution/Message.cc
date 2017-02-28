@@ -4,13 +4,10 @@
 
 using namespace std;
 
-Message::Message(const char *msg) {
-  data = msg;
+Message::Message(string msg) : data(msg) {
 }
 
-Message::Message(const Message& msg) {
-  typeStr = msg.typeStr;
-  data = msg.data;
+Message::Message(const Message& msg) : typeStr(msg.typeStr), data(msg.data) {
 }
 
 string Message::GetData() {
@@ -21,22 +18,22 @@ string Message::GetType() {
   return typeStr;
 }
 
-HelloMessage::HelloMessage(const char *msg) : Message(msg) {
+HelloMessage::HelloMessage(string msg) : Message(msg) {
   typeStr = "hello";
 }
 
-HelloackMessage::HelloackMessage(const char *msg) : Message(msg) {
+HelloackMessage::HelloackMessage(string msg) : Message(msg) {
   typeStr = "helloack";
 }
 
-MoveMessage::MoveMessage(const char *msg) : Message(msg) {
+MoveMessage::MoveMessage(string msg) : Message(msg) {
   typeStr = "move";
 }
 
-UpdateMessage::UpdateMessage(const char *msg) : Message(msg) {
+UpdateMessage::UpdateMessage(string msg) : Message(msg) {
   typeStr = "update";
 }
 
-ByeMessage::ByeMessage(const char *msg) : Message(msg) {
+ByeMessage::ByeMessage(string msg) : Message(msg) {
   typeStr = "bye";
 }

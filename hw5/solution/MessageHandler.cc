@@ -11,7 +11,9 @@ extern "C" {
 
 using namespace std;
 
-MessageHandler::MessageHandler(int fd) : cs(fd) {}
+MessageHandler::MessageHandler() : cs(0) {}
+
+MessageHandler::MessageHandler(int fd) : cs(fd){}
 
 Message MessageHandler::GetNextMessage() {
   // wait for a message from the other socket, decode the action, do it

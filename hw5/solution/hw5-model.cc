@@ -13,9 +13,31 @@ using namespace std;
 
 extern "C" {
   #include <string.h>
+  #include <jansson.h>
 }
 
 Game game;
+
+void deserializeAndApplyMove(const char *data) {
+  json_t *root;
+  json_error_t error;
+  root = json_loads(data, 0, &error);
+  json_t *jrow = json_object_get(root, "row");
+  json_t *jcol = json_object_get(root, "column");
+  json_t *jdir = json_object_get(root, "direction");
+  int row = json_integer_value(jrow);
+  int col = json_integer_value(jcol);
+  int dir = json_integer_value(jdir);
+  json_decref(jrow);
+  json_decref(jcol);
+  json_decref(jdir);
+  cout << row << ", " << col << ", " << dir << endl;
+  if (dir == 0) game.Swap(row, col, row, col - 1);
+  else if (dir == 1) game.Swap(row, col, row, col + 1);
+  else if (dir == 2) game.Swap(row, col, row - 1, col);
+  else if (dir == 3) game.Swap(row, col, row + 1, col);
+  json_decref(root);
+}
 
 void usage(const char *exeName) {
   cout << "Usage: " << exeName << " <hostname> <port>" << endl;
@@ -42,11 +64,19 @@ int main(int argc, char **argv) {
     hw5_net::ClientSocket csock(serverName, serverPort);
     MessageHandler msgh(csock.getAsFileDescriptor());
     HelloMessage hellomsg("{\"action\": \"hello\"}");
-    cout << hellomsg.GetType() << endl;
     msgh.SendMessage(hellomsg);
-    Message helloackmsg = msgh.GetNextMessage();
-    cout << helloackmsg.GetData() <<endl;
-    game.Init(helloackmsg.GetData().c_str());
+    Message msg = msgh.GetNextMessage();
+    game.Init(msg.GetData().c_str());
+    do {
+      msg = msgh.GetNextMessage();
+      if (msg.GetType() == "move") {
+        deserializeAndApplyMove(msg.GetData().c_str());
+        string updateStr = game.SerializeCurrentState();
+        // send update to view
+        UpdateMessage update(updateStr);
+        msgh.SendMessage(update);
+      }
+    } while (!(msg.GetType() == "bye"));
   } catch (string errString) {
     cerr << errString << endl;
     return 0;

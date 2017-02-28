@@ -1,6 +1,8 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include <iostream>
+
 extern "C" {
   #include "Array2D.h"
 }
@@ -16,9 +18,7 @@ class Game {
   int GetMoves();
   int GetScore();
   int Swap(const int r1, const int c1, const int r2, const int c2);
-  bool Settle();
-  bool MatchTemplate(const int row, const int col, const int t);
-  void ApplyGravity();
+  std::string SerializeCurrentState(); 
   bool IsWon();
   ~Game();
 
@@ -31,8 +31,10 @@ class Game {
   Array2D extBoard;
   Array2D boardState;
   Array2D boardCandies;
+  bool Settle();
+  bool MatchTemplate(const int row, const int col, const int t);
+  void ApplyGravity();
   void ShiftDown(int startingRow, int col);
-  void SerializeCurrentState(); 
 
   Game(const Game &copy) = delete;
   Game &operator=(Game rhs) = delete;

@@ -10,7 +10,7 @@ using namespace std;
 
 class Message {
  public:
-  Message(const char *msg);
+  Message(string msg);
   Message(const Message& msg);
   string GetData();
   string GetType();
@@ -22,27 +22,27 @@ class Message {
 
 class HelloMessage : public Message {
  public:
-  HelloMessage(const char *msg);
+  HelloMessage(string msg);
 };
 
 class HelloackMessage : public Message {
  public:
-  HelloackMessage(const char *msg);
+  HelloackMessage(string msg);
 };
 
 class MoveMessage : public Message {
  public:
-  MoveMessage(const char *msg);
+  MoveMessage(string msg);
 };
 
 class UpdateMessage : public Message {
  public:
-  UpdateMessage(const char *msg);
+  UpdateMessage(string msg);
 };
 
 class ByeMessage : public Message {
  public:
-  ByeMessage(const char *msg);
+  ByeMessage(string msg);
 };
 
 #endif // MESSAGE_H

@@ -9,6 +9,7 @@
 
 class MessageHandler {
  public:
+  MessageHandler();
   MessageHandler(int fd);
   Message GetNextMessage();
   void SendMessage(Message msg);
