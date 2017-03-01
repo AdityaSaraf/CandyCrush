@@ -22,7 +22,7 @@ Message MessageHandler::GetNextMessage() {
   int place = 1;
   int readCount;
   while ((readCount = cs.WrappedRead(buf, 1023))) {
-    while (bracketCount > 0) {
+    while (bracketCount > 0 && place < 1024) {
       if (buf[place] == '{') bracketCount++;
       if (buf[place] == '}') bracketCount--;
       place++;
