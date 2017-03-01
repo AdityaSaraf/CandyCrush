@@ -37,7 +37,6 @@ void Game::Init(const char *jString) {
   json_error_t error;
   root = json_loads(jString, 0, &error);
 
-  json_t *action = json_object_get(root, "action");
   json_t *gameDef = json_object_get(root, "gamedef");
   json_t *gameState = json_object_get(root, "gamestate");
 
@@ -414,6 +413,7 @@ std::string Game::SerializeCurrentState()
   json_object_set(gamestate, "boardcandies", bCandies);
   
   json_object_set(obj, "gamestate", gamestate);
+  json_dump_file(obj, "test.out", 0);
   char *jresult = json_dumps(obj, 0);
   std::string result(jresult);
   free(jresult);

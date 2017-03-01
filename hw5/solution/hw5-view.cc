@@ -87,8 +87,8 @@ static void ccswap(GtkWidget *widget, gpointer user_data) {
     GValue GCol = G_VALUE_INIT;
     g_value_init(&GRow, G_TYPE_INT);
     g_value_init(&GCol, G_TYPE_INT);
-    gtk_container_child_get_property(GTK_CONTAINER(widget), selected, "top-attach", &GRow);
-    gtk_container_child_get_property(GTK_CONTAINER(widget), selected, "left-attach", &GCol);
+    gtk_container_child_get_property(GTK_CONTAINER(grid), selected, "top-attach", &GRow);
+    gtk_container_child_get_property(GTK_CONTAINER(grid), selected, "left-attach", &GCol);
     int row = g_value_get_int(&GRow);
     int col = g_value_get_int(&GCol);
     int dir = *(int*) g_object_get_data(G_OBJECT(grid), "bits");
@@ -125,6 +125,11 @@ static void ccactivate(GtkApplication *app, gpointer user_data) {
   GtkWidget *grid;
   GtkWidget *button;
   GtkWidget *icon;
+  MessageHandler *mhp = (MessageHandler *) user_data;
+  Message update = mhp->GetNextMessage();
+  cout << update.GetData() << endl;
+  info.Init(update.GetData().c_str());
+
   // create a new window, and set its title
   window = gtk_application_window_new (app);
   gtk_window_set_title (GTK_WINDOW (window), "CandyCrush");
@@ -159,7 +164,7 @@ static void ccactivate(GtkApplication *app, gpointer user_data) {
   *upbits = 3;
   g_object_set_data(G_OBJECT(button), "bits", upbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
-  g_signal_connect_swapped(button, "clicked", G_CALLBACK(ccswap), (gpointer) gridMsg);
+  g_signal_connect(button, "clicked", G_CALLBACK(ccswap), (gpointer) gridMsg);
   gtk_grid_attach(GTK_GRID(grid), button, info.GetCols() + 1, 2, 5, 1);
 
   icon = gtk_image_new_from_file("images/direction/left.png");
@@ -168,7 +173,7 @@ static void ccactivate(GtkApplication *app, gpointer user_data) {
   *leftbits = 0;
   g_object_set_data(G_OBJECT(button), "bits", leftbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
-  g_signal_connect_swapped(button, "clicked", G_CALLBACK(ccswap), (gpointer) gridMsg);
+  g_signal_connect(button, "clicked", G_CALLBACK(ccswap), (gpointer) gridMsg);
   gtk_grid_attach(GTK_GRID(grid), button, info.GetCols() + 1, 3, 5, 1);
 
   icon = gtk_image_new_from_file("images/direction/right.png");
@@ -177,7 +182,7 @@ static void ccactivate(GtkApplication *app, gpointer user_data) {
   *rightbits = 1;
   g_object_set_data(G_OBJECT(button), "bits", rightbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
-  g_signal_connect_swapped(button, "clicked", G_CALLBACK(ccswap), (gpointer) gridMsg);
+  g_signal_connect(button, "clicked", G_CALLBACK(ccswap), (gpointer) gridMsg);
   gtk_grid_attach(GTK_GRID(grid), button, info.GetCols() + 1, 4, 5, 1);
 
   icon = gtk_image_new_from_file("images/direction/down.png");
@@ -186,7 +191,7 @@ static void ccactivate(GtkApplication *app, gpointer user_data) {
   *downbits = 2;
   g_object_set_data(G_OBJECT(button), "bits", downbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
-  g_signal_connect_swapped(button, "clicked", G_CALLBACK(ccswap), (gpointer) gridMsg);
+  g_signal_connect(button, "clicked", G_CALLBACK(ccswap), (gpointer) gridMsg);
   gtk_grid_attach(GTK_GRID(grid), button, info.GetCols() + 1, 5, 5, 1);
 
   moves = gtk_label_new(NULL);
@@ -201,13 +206,11 @@ static void ccactivate(GtkApplication *app, gpointer user_data) {
 }
 
 static void ccopen(GtkApplication *app, GFile **files, gint n_files, const gchar *hint, gpointer user_data) {
-  json_t *root = json_object();
+  json_t *root;
   json_error_t error; 
-  json_t *instance;
-  instance = json_load_file(g_file_get_path(files[0]), 0, &error);
+  root = json_load_file(g_file_get_path(files[0]), 0, &error);
   json_t *action = json_string("helloack");
   json_object_set_new(root, "action", action);
-  json_object_set_new(root, "gameinstance", instance);
   const char *gameinstance = json_dumps(root, 0);
   info.Init(gameinstance);
   string helloack(gameinstance);

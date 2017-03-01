@@ -67,14 +67,18 @@ int main(int argc, char **argv) {
     msgh.SendMessage(hellomsg);
     Message msg = msgh.GetNextMessage();
     game.Init(msg.GetData().c_str());
+    string updateStr = game.SerializeCurrentState();
+    cout << updateStr << endl;
+    UpdateMessage update(updateStr);
+    msgh.SendMessage(update);
     do {
       msg = msgh.GetNextMessage();
       if (msg.GetType() == "move") {
         deserializeAndApplyMove(msg.GetData().c_str());
-        string updateStr = game.SerializeCurrentState();
+        updateStr = game.SerializeCurrentState();
         // send update to view
-        UpdateMessage update(updateStr);
-        msgh.SendMessage(update);
+        UpdateMessage updatemsg(updateStr);
+        msgh.SendMessage(updatemsg);
       }
     } while (!(msg.GetType() == "bye"));
   } catch (string errString) {

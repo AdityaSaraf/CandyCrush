@@ -33,27 +33,29 @@ Message MessageHandler::GetNextMessage() {
     root = json_loads(buf, 0, &error);
     json_t *jtype = json_object_get(root, "action");
     const char *type = json_string_value(jtype);
+    string data(buf);
     if (!strcmp(type, "hello")) {
-      HelloMessage msg(buf);
+      HelloMessage msg(data);
       return msg;
     } else if (!strcmp(type, "helloack")) {
-      HelloackMessage msg(buf);
+      HelloackMessage msg(data);
       return msg;
     } else if (!strcmp(type, "move")) {
-      MoveMessage msg(buf);
+      MoveMessage msg(data);
       return msg;
     } else if (!strcmp(type, "update")) {
-      UpdateMessage msg(buf);
+      UpdateMessage msg(data);
       return msg;
     } else if (!strcmp(type, "bye")) {
-      ByeMessage msg(buf);
+      ByeMessage msg(data);
       return msg;
     } else {
-      Message msg(buf);
+      Message msg(data);
       return msg;
     }
   }
-  Message msg("error");
+  string data(buf);
+  Message msg(data);
   return msg;
 }
 

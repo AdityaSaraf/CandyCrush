@@ -58,8 +58,8 @@ void Info_Container::Init(const char *fileName) {
     json_t *jcols = json_object_get(bCandies, "columns");
     int rows = json_integer_value(jrows);
     int cols = json_integer_value(jcols);
-    json_decref(jrows);
-    json_decref(jcols);
+    //json_decref(jrows);
+    //json_decref(jcols);
 
     boardCandies = Array2D_create(rows, cols);
     json_t *data = json_object_get(root, "data");
@@ -71,8 +71,8 @@ void Info_Container::Init(const char *fileName) {
       *n = json_integer_value(num);
       Array2D_set(boardCandies, i/cols, i%cols, n);
     }
-    json_decref(data);
-    json_decref(bCandies);
+    //json_decref(data);
+    //json_decref(bCandies);
     
     json_t *bState = json_object_get(gameState, "boardstate");
     boardState = deserializeF(bState);
