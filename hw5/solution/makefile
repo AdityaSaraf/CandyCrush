@@ -1,5 +1,5 @@
-SRC=Message.cc MessageHandler.cc ../../hw4/Game.cc
-HEADERS=Message.h MessageHandler.h ../../hw4/Game.h
+SRC=Message.cc MessageHandler.cc ../../hw4/Game.cc Info_Container.cc
+HEADERS=Message.h MessageHandler.h ../../hw4/Game.h Info_Container.h
 LIBS=../../hw2/libhw2.a ../socketCode/libsocket.a
 CFLAGS=-Wall -Wpedantic -std=c++11
 IFLAGS=-I../../hw2 -I../../jansson/include -I../socketCode

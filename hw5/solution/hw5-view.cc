@@ -10,7 +10,7 @@ using namespace std;
 #include "ClientSocket.h"
 #include "MessageHandler.h"
 #include "Message.h"
-#include "../../hw4/Game.h"
+#include "Info_Container.h"
 
 extern "C" {
   #include <jansson.h>
@@ -27,26 +27,26 @@ typedef struct gridMsg_t{
 GtkWidget *selected;
 GtkWidget *moves;
 GtkWidget *score;
-Game game;
+Info_Container info;
 
 void writeMoves() {
   char msg[32] = {0};
-  g_snprintf(msg, sizeof msg, "%d moves made", game.GetMoves());
+  g_snprintf(msg, sizeof msg, "%d moves made", info.GetMoves());
   gtk_label_set_text(GTK_LABEL(moves), msg);
 }
 
 void writeScore() {
   char msg[32] = {0};
-  g_snprintf(msg, sizeof msg, "Score: %d", game.GetScore());
+  g_snprintf(msg, sizeof msg, "Score: %d", info.GetScore());
   gtk_label_set_text(GTK_LABEL(score), msg);
 }
 
 void setButtonImage(GtkWidget *button, const int row, const int col ) {
-//Boardstate": {"game.GetRows()": 6, "columns": 6, "data": [2, 1, 2, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1]}}}}'
+//Boardstate": {"info.GetRows()": 6, "columns": 6, "data": [2, 1, 2, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1]}}}}'
 
   GtkWidget *icon;
-  int color = game.GetColor(game.GetRows() - row - 1, col);
-  int state = game.GetState(game.GetRows() - row - 1, col);
+  int color = info.GetColor(info.GetRows() - row - 1, col);
+  int state = info.GetState(info.GetRows() - row - 1, col);
   char filename[50];
   strcpy(filename, "images/regular/");
   if (state == 0) strcat(filename, "state0/");
@@ -65,8 +65,8 @@ void setButtonImage(GtkWidget *button, const int row, const int col ) {
 }
 
 void redraw(GtkWidget *grid) {
-  for (int i = 0; i < game.GetRows(); i++) {
-    for (int j = 0; j < game.GetCols(); j++) {
+  for (int i = 0; i < info.GetRows(); i++) {
+    for (int j = 0; j < info.GetCols(); j++) {
       GtkWidget *button = gtk_grid_get_child_at(GTK_GRID(grid), j, i);
       setButtonImage(button, i, j);
     }
@@ -132,8 +132,8 @@ static void ccactivate(GtkApplication *app, gpointer user_data) {
   // Pack the container in the window
   gtk_container_add (GTK_CONTAINER (window), grid);
 
-  for (int i = 0; i < game.GetRows(); i++) {
-    for (int j = 0; j < game.GetCols(); j++) {
+  for (int i = 0; i < info.GetRows(); i++) {
+    for (int j = 0; j < info.GetCols(); j++) {
       button = gtk_button_new();
       setButtonImage(button, i, j);
       gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
@@ -149,7 +149,7 @@ static void ccactivate(GtkApplication *app, gpointer user_data) {
   g_object_set_data(G_OBJECT(button), "bits", upbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
   g_signal_connect_swapped(button, "clicked", G_CALLBACK(ccswap), (gpointer) gridMsg);
-  gtk_grid_attach(GTK_GRID(grid), button, game.GetCols() + 1, 2, 5, 1);
+  gtk_grid_attach(GTK_GRID(grid), button, info.GetCols() + 1, 2, 5, 1);
 
   icon = gtk_image_new_from_file("images/direction/left.png");
   button = gtk_button_new();
@@ -158,7 +158,7 @@ static void ccactivate(GtkApplication *app, gpointer user_data) {
   g_object_set_data(G_OBJECT(button), "bits", leftbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
   g_signal_connect_swapped(button, "clicked", G_CALLBACK(ccswap), (gpointer) gridMsg);
-  gtk_grid_attach(GTK_GRID(grid), button, game.GetCols() + 1, 3, 5, 1);
+  gtk_grid_attach(GTK_GRID(grid), button, info.GetCols() + 1, 3, 5, 1);
 
   icon = gtk_image_new_from_file("images/direction/right.png");
   button = gtk_button_new();
@@ -167,7 +167,7 @@ static void ccactivate(GtkApplication *app, gpointer user_data) {
   g_object_set_data(G_OBJECT(button), "bits", rightbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
   g_signal_connect_swapped(button, "clicked", G_CALLBACK(ccswap), (gpointer) gridMsg);
-  gtk_grid_attach(GTK_GRID(grid), button, game.GetCols() + 1, 4, 5, 1);
+  gtk_grid_attach(GTK_GRID(grid), button, info.GetCols() + 1, 4, 5, 1);
 
   icon = gtk_image_new_from_file("images/direction/down.png");
   button = gtk_button_new();
@@ -176,14 +176,14 @@ static void ccactivate(GtkApplication *app, gpointer user_data) {
   g_object_set_data(G_OBJECT(button), "bits", downbits);
   gtk_button_set_image(GTK_BUTTON(button), icon);
   g_signal_connect_swapped(button, "clicked", G_CALLBACK(ccswap), (gpointer) gridMsg);
-  gtk_grid_attach(GTK_GRID(grid), button, game.GetCols() + 1, 5, 5, 1);
+  gtk_grid_attach(GTK_GRID(grid), button, info.GetCols() + 1, 5, 5, 1);
 
   moves = gtk_label_new(NULL);
-  gtk_grid_attach(GTK_GRID(grid), moves, game.GetCols() + 1, 0, 5, 1);
+  gtk_grid_attach(GTK_GRID(grid), moves, info.GetCols() + 1, 0, 5, 1);
   writeMoves();
 
   score = gtk_label_new(NULL);
-  gtk_grid_attach(GTK_GRID(grid), score, game.GetCols() + 1, 1, 5, 1);
+  gtk_grid_attach(GTK_GRID(grid), score, info.GetCols() + 1, 1, 5, 1);
   writeScore();
 
   gtk_widget_show_all (window); 
@@ -196,7 +196,7 @@ static void ccopen(GtkApplication *app, GFile **files, gint n_files, const gchar
   json_t *action = json_string("helloack");
   json_object_set_new(root, "action", action);
   const char *gameinstance = json_dumps(root, 0);
-  game.Init(gameinstance);
+  info.Init(gameinstance);
   string helloack(gameinstance);
   free((char*)gameinstance);
   HelloackMessage msg(helloack);
