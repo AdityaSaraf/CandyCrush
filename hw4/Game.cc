@@ -32,11 +32,12 @@ Game::Game() {
 
 }
 
-void Game::Init(const char *fileName) {
+void Game::Init(const char *jString) {
   json_t *root;
   json_error_t error;
-  root = json_loads(fileName, 0, &error);
+  root = json_loads(jString, 0, &error);
 
+  json_t *action = json_object_get(root, "action");
   json_t *gameDef = json_object_get(root, "gamedef");
   json_t *gameState = json_object_get(root, "gamestate");
 

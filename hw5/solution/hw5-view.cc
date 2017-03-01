@@ -81,6 +81,8 @@ void ccselect(GtkWidget *widget, gpointer user_data) {
 
 static void ccswap(GtkWidget *widget, gpointer user_data) {
   if (selected) {
+    GridMsg gm = (GridMsg) user_data;
+    GtkWidget *grid = gm->grid;
     GValue GRow = G_VALUE_INIT;
     GValue GCol = G_VALUE_INIT;
     g_value_init(&GRow, G_TYPE_INT);
@@ -89,7 +91,7 @@ static void ccswap(GtkWidget *widget, gpointer user_data) {
     gtk_container_child_get_property(GTK_CONTAINER(widget), selected, "left-attach", &GCol);
     int row = g_value_get_int(&GRow);
     int col = g_value_get_int(&GCol);
-    int dir = *(int*) g_object_get_data(G_OBJECT(user_data), "bits");
+    int dir = *(int*) g_object_get_data(G_OBJECT(grid), "bits");
     json_t *root = json_object();
     json_t *action = json_string("move");
     json_t *jrow = json_integer(row);
@@ -103,7 +105,16 @@ static void ccswap(GtkWidget *widget, gpointer user_data) {
     string move(jmove);
     free(jmove);
     json_decref(root);
-    
+    MessageHandler* mhp = gm->mhp;
+    MoveMessage moveM(move);  
+    mhp->SendMessage(moveM);
+    Message update = mhp->GetNextMessage();
+    if (update.GetType() != "update")
+    {
+      cout << "Error: invalid Message Type" << endl;
+    }
+    const char* newInstance = update.GetData().c_str();
+    info.Init(newInstance);
   } else {
     printf("Error: no candy selected!\n");
   }
@@ -190,11 +201,13 @@ static void ccactivate(GtkApplication *app, gpointer user_data) {
 }
 
 static void ccopen(GtkApplication *app, GFile **files, gint n_files, const gchar *hint, gpointer user_data) {
-  json_t *root;
-  json_error_t error;
-  root = json_load_file(g_file_get_path(files[0]), 0, &error);
+  json_t *root = json_object();
+  json_error_t error; 
+  json_t *instance;
+  instance = json_load_file(g_file_get_path(files[0]), 0, &error);
   json_t *action = json_string("helloack");
   json_object_set_new(root, "action", action);
+  json_object_set_new(root, "gameinstance", instance);
   const char *gameinstance = json_dumps(root, 0);
   info.Init(gameinstance);
   string helloack(gameinstance);
