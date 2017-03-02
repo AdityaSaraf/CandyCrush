@@ -258,12 +258,12 @@ int main(int argc, char **argv) {
     cout << "Created bound socket on port = " << ssock.port() << endl;
     
     while (1) {
-      int acceptedFd;
-      string clientAddr;
-      uint16_t clientPort;
-      string clientDNSName;
-      string serverAddress;
-      string serverDNSName;
+      int acceptedFd = 0;
+      string clientAddr = "";
+      uint16_t clientPort = 0;
+      string clientDNSName = "";
+      string serverAddress = "";
+      string serverDNSName = "";
 
       ssock.Accept(&acceptedFd,
                    &clientAddr,

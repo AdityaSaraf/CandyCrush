@@ -78,7 +78,7 @@ void Info_Container::Init(const char *fileName) {
     
     json_t *bState = json_object_get(gameState, "boardstate");
     boardState = deserializeF(bState);
-    json_t *jmoves = json_object_get(gameState, "moves");
+    json_t *jmoves = json_object_get(gameState, "movesmade");
     moves = json_integer_value(jmoves);
     json_decref(jmoves);
 
