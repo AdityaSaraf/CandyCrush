@@ -36,9 +36,10 @@ void Game::Init(const char *jString) {
   json_t *root;
   json_error_t error;
   root = json_loads(jString, 0, &error);
+  json_t *gameinstance = json_object_get(root, "gameinstance");
 
-  json_t *gameDef = json_object_get(root, "gamedef");
-  json_t *gameState = json_object_get(root, "gamestate");
+  json_t *gameDef = json_object_get(gameinstance, "gamedef");
+  json_t *gameState = json_object_get(gameinstance, "gamestate");
 
   json_t *gameid = json_object_get(gameDef, "gameid");
   gameID = json_integer_value(gameid);
@@ -62,7 +63,7 @@ void Game::Init(const char *jString) {
     json_decref(jcols);
 
     boardCandies = Array2D_create(rows, cols);
-    json_t *data = json_object_get(root, "data");
+    json_t *data = json_object_get(bCandies, "data");
     json_t *el;
     for (int i = 0; i < (rows * cols); i++) {
       el = json_array_get(data, (size_t) i);
@@ -329,9 +330,13 @@ bool Game::IsWon() {
 std::string Game::SerializeCurrentState()
 {
   json_t *obj = json_object();
-  json_t *gamedef = json_object();
+
   json_t *action = json_string("update");
-  json_object_set_new(obj, "action", action);
+  json_object_set(obj, "action", action);
+
+  json_t *gameinstance = json_object();
+
+  json_t *gamedef = json_object();
 
   json_t *gameid = json_integer(gameID);
   json_object_set(gamedef, "gameid", gameid);
@@ -372,7 +377,7 @@ std::string Game::SerializeCurrentState()
   json_object_set(bState, "data", stateArr);
   json_object_set(gamedef, "boardstate", bState);
 
-  json_object_set(obj, "gamedef", gamedef);
+  json_object_set(gameinstance, "gamedef", gamedef);
 
   json_t *gamestate = json_object();
   
@@ -412,7 +417,8 @@ std::string Game::SerializeCurrentState()
   json_object_set(bCandies, "data", cArr);
   json_object_set(gamestate, "boardcandies", bCandies);
   
-  json_object_set(obj, "gamestate", gamestate);
+  json_object_set(gameinstance, "gamestate", gamestate);
+  json_object_set(obj, "gameinstance", gameinstance);
   json_dump_file(obj, "test.out", 0);
   char *jresult = json_dumps(obj, 0);
   std::string result(jresult);
@@ -445,7 +451,6 @@ std::string Game::SerializeCurrentState()
 }
 
 Game::~Game() {
-  SerializeCurrentState();
   Array2D_destroy(boardCandies, (Array2DDataFreeFnPtr) &free);
   Array2D_destroy(boardState, (Array2DDataFreeFnPtr) &free);
   Array2D_destroy(extBoard, (Array2DDataFreeFnPtr) &free);

@@ -25,13 +25,12 @@ void deserializeAndApplyMove(const char *data) {
   json_t *jrow = json_object_get(root, "row");
   json_t *jcol = json_object_get(root, "column");
   json_t *jdir = json_object_get(root, "direction");
-  int row = json_integer_value(jrow);
+  int row = game.GetRows() - json_integer_value(jrow) - 1;
   int col = json_integer_value(jcol);
   int dir = json_integer_value(jdir);
   json_decref(jrow);
   json_decref(jcol);
   json_decref(jdir);
-  cout << row << ", " << col << ", " << dir << endl;
   if (dir == 0) game.Swap(row, col, row, col - 1);
   else if (dir == 1) game.Swap(row, col, row, col + 1);
   else if (dir == 2) game.Swap(row, col, row - 1, col);
@@ -68,10 +67,9 @@ int main(int argc, char **argv) {
     Message msg = msgh.GetNextMessage();
     game.Init(msg.GetData().c_str());
     string updateStr = game.SerializeCurrentState();
-    cout << updateStr << endl;
     UpdateMessage update(updateStr);
     msgh.SendMessage(update);
-    do {
+    while (1) {
       msg = msgh.GetNextMessage();
       if (msg.GetType() == "move") {
         deserializeAndApplyMove(msg.GetData().c_str());
@@ -80,7 +78,10 @@ int main(int argc, char **argv) {
         UpdateMessage updatemsg(updateStr);
         msgh.SendMessage(updatemsg);
       }
-    } while (!(msg.GetType() == "bye"));
+      if (msg.GetType() == "bye") {
+        return 1;
+      }
+    }
   } catch (string errString) {
     cerr << errString << endl;
     return 0;

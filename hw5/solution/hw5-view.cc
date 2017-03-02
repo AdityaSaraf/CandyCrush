@@ -27,26 +27,23 @@ typedef struct gridMsg_t{
 GtkWidget *selected;
 GtkWidget *moves;
 GtkWidget *score;
-Info_Container info;
 
-void writeMoves() {
+void writeMoves(int movesC) {
   char msg[32] = {0};
-  g_snprintf(msg, sizeof msg, "%d moves made", info.GetMoves());
+  g_snprintf(msg, sizeof msg, "%d moves made", movesC);
   gtk_label_set_text(GTK_LABEL(moves), msg);
 }
 
-void writeScore() {
+void writeScore(int scoreC) {
   char msg[32] = {0};
-  g_snprintf(msg, sizeof msg, "Score: %d", info.GetScore());
+  g_snprintf(msg, sizeof msg, "Score: %d", scoreC);
   gtk_label_set_text(GTK_LABEL(score), msg);
 }
 
-void setButtonImage(GtkWidget *button, const int row, const int col ) {
+void setButtonImage(GtkWidget *button, const int row, const int col, int color, int state) {
 //Boardstate": {"info.GetRows()": 6, "columns": 6, "data": [2, 1, 2, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1]}}}}'
 
   GtkWidget *icon;
-  int color = info.GetColor(info.GetRows() - row - 1, col);
-  int state = info.GetState(info.GetRows() - row - 1, col);
   char filename[50];
   strcpy(filename, "images/regular/");
   if (state == 0) strcat(filename, "state0/");
@@ -64,13 +61,17 @@ void setButtonImage(GtkWidget *button, const int row, const int col ) {
   gtk_button_set_image(GTK_BUTTON(button), icon);
 }
 
-void redraw(GtkWidget *grid) {
+void redraw(GtkWidget *grid, const char *newInstance) {
+  Info_Container info;
+  info.Init(newInstance);
   for (int i = 0; i < info.GetRows(); i++) {
     for (int j = 0; j < info.GetCols(); j++) {
       GtkWidget *button = gtk_grid_get_child_at(GTK_GRID(grid), j, i);
-      setButtonImage(button, i, j);
+      setButtonImage(button, i, j, info.GetColor(info.GetRows() - i - 1, j), info.GetState(info.GetRows() - i - 1, j));
     }
   }
+  writeMoves(info.GetMoves());
+  writeScore(info.GetScore());
 }
 
 void ccselect(GtkWidget *widget, gpointer user_data) {
@@ -91,7 +92,7 @@ static void ccswap(GtkWidget *widget, gpointer user_data) {
     gtk_container_child_get_property(GTK_CONTAINER(grid), selected, "left-attach", &GCol);
     int row = g_value_get_int(&GRow);
     int col = g_value_get_int(&GCol);
-    int dir = *(int*) g_object_get_data(G_OBJECT(grid), "bits");
+    int dir = *(int*) g_object_get_data(G_OBJECT(widget), "bits");
     json_t *root = json_object();
     json_t *action = json_string("move");
     json_t *jrow = json_integer(row);
@@ -114,7 +115,7 @@ static void ccswap(GtkWidget *widget, gpointer user_data) {
       cout << "Error: invalid Message Type" << endl;
     }
     const char* newInstance = update.GetData().c_str();
-    info.Init(newInstance);
+    redraw(grid, newInstance);
   } else {
     printf("Error: no candy selected!\n");
   }
@@ -127,7 +128,7 @@ static void ccactivate(GtkApplication *app, gpointer user_data) {
   GtkWidget *icon;
   MessageHandler *mhp = (MessageHandler *) user_data;
   Message update = mhp->GetNextMessage();
-  cout << update.GetData() << endl;
+  Info_Container info;
   info.Init(update.GetData().c_str());
 
   // create a new window, and set its title
@@ -151,7 +152,7 @@ static void ccactivate(GtkApplication *app, gpointer user_data) {
   for (int i = 0; i < info.GetRows(); i++) {
     for (int j = 0; j < info.GetCols(); j++) {
       button = gtk_button_new();
-      setButtonImage(button, i, j);
+      setButtonImage(button, i, j, info.GetColor(info.GetRows() - i - 1, j), info.GetState(info.GetRows() - i - 1, j));
       gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
       g_signal_connect(button, "clicked", G_CALLBACK(ccselect), grid);
       gtk_grid_attach(GTK_GRID(grid), button, j, i, 1, 1);
@@ -196,26 +197,28 @@ static void ccactivate(GtkApplication *app, gpointer user_data) {
 
   moves = gtk_label_new(NULL);
   gtk_grid_attach(GTK_GRID(grid), moves, info.GetCols() + 1, 0, 5, 1);
-  writeMoves();
+  writeMoves(info.GetMoves());
 
   score = gtk_label_new(NULL);
   gtk_grid_attach(GTK_GRID(grid), score, info.GetCols() + 1, 1, 5, 1);
-  writeScore();
+  writeScore(info.GetScore());
 
   gtk_widget_show_all (window); 
 }
 
 static void ccopen(GtkApplication *app, GFile **files, gint n_files, const gchar *hint, gpointer user_data) {
-  json_t *root;
+  json_t *gameinstance;
   json_error_t error; 
-  root = json_load_file(g_file_get_path(files[0]), 0, &error);
+  gameinstance = json_load_file(g_file_get_path(files[0]), 0, &error);
+  json_t *root = json_object();
   json_t *action = json_string("helloack");
   json_object_set_new(root, "action", action);
-  const char *gameinstance = json_dumps(root, 0);
-  info.Init(gameinstance);
-  string helloack(gameinstance);
-  free((char*)gameinstance);
-  HelloackMessage msg(helloack);
+  json_object_set_new(root, "gameinstance", gameinstance);
+  char *jhelloackmsg = json_dumps(root, 0);
+  string helloackmsg(jhelloackmsg);
+  free(jhelloackmsg);
+  json_decref(root);
+  HelloackMessage msg(helloackmsg);
   MessageHandler *mhp = (MessageHandler *) user_data;
   mhp->SendMessage(msg);
   g_application_activate(G_APPLICATION(app));
@@ -284,8 +287,9 @@ int main(int argc, char **argv) {
         g_application_run(G_APPLICATION(app), argc, argv);
         g_object_unref(app);
       }
+      ByeMessage byemsg("{\"action\": \"bye\"}");
+      msgh.SendMessage(byemsg);
     }
-
   } catch (std::string strError) {
     std::cout << strError << std::endl;
     return EXIT_FAILURE;

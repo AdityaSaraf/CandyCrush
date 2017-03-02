@@ -61,6 +61,6 @@ Message MessageHandler::GetNextMessage() {
 
 void MessageHandler::SendMessage(Message msg) {
   // encode the message and send it to the other socket
-  string strMsg = msg.GetData();
+  string strMsg(msg.GetData());
   cs.WrappedWrite(strMsg.c_str(), strMsg.length());
 }

@@ -11,8 +11,8 @@ Array2D deserializeF(json_t *root) {
   json_t *jcols = json_object_get(root, "columns");
   int rows = json_integer_value(jrows);
   int cols = json_integer_value(jcols);
-  json_decref(jrows);
-  json_decref(jcols);
+  //json_decref(jrows);
+  //json_decref(jcols);
   Array2D result = Array2D_create(rows, cols);
   json_t *data = json_object_get(root, "data");
   json_t *el;
@@ -22,8 +22,8 @@ Array2D deserializeF(json_t *root) {
     *n = json_integer_value(el);
     Array2D_set(result, i/cols, i%cols, n);
   }
-  json_decref(el);
-  json_decref(data);
+  //json_decref(el);
+  //json_decref(data);
   //json_decref(root);
   return result;
 }
@@ -37,8 +37,10 @@ void Info_Container::Init(const char *fileName) {
   json_error_t error;
   root = json_loads(fileName, 0, &error);
 
-  json_t *gameDef = json_object_get(root, "gamedef");
-  json_t *gameState = json_object_get(root, "gamestate");
+  json_t *gameinstance = json_object_get(root, "gameinstance");
+
+  json_t *gameDef = json_object_get(gameinstance, "gamedef");
+  json_t *gameState = json_object_get(gameinstance, "gamestate");
 
   json_t *gameid = json_object_get(gameDef, "gameid");
   gameID = json_integer_value(gameid);
@@ -62,7 +64,7 @@ void Info_Container::Init(const char *fileName) {
     //json_decref(jcols);
 
     boardCandies = Array2D_create(rows, cols);
-    json_t *data = json_object_get(root, "data");
+    json_t *data = json_object_get(bCandies, "data");
     json_t *el;
     for (int i = 0; i < (rows * cols); i++) {
       el = json_array_get(data, (size_t) i);
