@@ -331,8 +331,10 @@ std::string Game::SerializeCurrentState()
 {
   json_t *obj = json_object();
 
-  json_t *action = json_string("update");
+  json_t *action = json_string("mymove");
+  json_t *teamname = json_string("sarafa_kblack");
   json_object_set(obj, "action", action);
+  json_object_set(obj, "teamname", teamname);
 
   json_t *gameinstance = json_object();
 

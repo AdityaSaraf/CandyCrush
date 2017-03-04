@@ -37,3 +37,11 @@ UpdateMessage::UpdateMessage(string msg) : Message(msg) {
 ByeMessage::ByeMessage(string msg) : Message(msg) {
   typeStr = "bye";
 }
+
+MyMoveMessage::MyMoveMessage(string msg) : Message(msg) {
+  typeStr = "mymove";
+}
+
+RequestMoveMessage::RequestMoveMessage(string msg) : Message(msg) {
+  typeStr = "requestmove";
+}

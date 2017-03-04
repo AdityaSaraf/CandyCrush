@@ -66,17 +66,31 @@ int main(int argc, char **argv) {
     msgh.SendMessage(hellomsg);
     Message msg = msgh.GetNextMessage();
     game.Init(msg.GetData().c_str());
-    string updateStr = game.SerializeCurrentState();
-    UpdateMessage update(updateStr);
-    msgh.SendMessage(update);
     while (1) {
       msg = msgh.GetNextMessage();
-      if (msg.GetType() == "move") {
-        deserializeAndApplyMove(msg.GetData().c_str());
-        updateStr = game.SerializeCurrentState();
-        // send update to view
-        UpdateMessage updatemsg(updateStr);
-        msgh.SendMessage(updatemsg);
+      if (msg.GetType() == "requestmove") {
+        // find best move
+        // searcher.getBestMove();
+        // this has action, teamname and gameinstance
+        string initialStr = game.SerializeCurrentState();
+
+        json_error_t error;
+
+        json_auto_t *root = json_loads(initialStr.c_str(), 0, &error);
+        // set move
+        json_t *move = json_string(/*call some function that serializes move returned from searcher*/"");
+        json_object_set(root, "move", move);
+        // set movesevaluated
+        json_t *moves = json_integer(/*searcher.getMovesEvaluated()*/0);
+        json_object_set(root, "movesevaluated", moves);
+
+
+        char *jresult = json_dumps(root, 0);
+        std::string MyMoveStr(jresult);
+        free(jresult);
+
+        MyMoveMessage myMoveMessage(MyMoveStr);
+        msgh.SendMessage(myMoveMessage);
       }
       if (msg.GetType() == "bye") {
         return 1;

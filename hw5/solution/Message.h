@@ -45,4 +45,13 @@ class ByeMessage : public Message {
   ByeMessage(string msg);
 };
 
+class MyMoveMessage : public Message {
+ public:
+  MyMoveMessage(string msg);
+};
+
+class RequestMoveMessage : public Message {
+ public:
+  RequestMoveMessage(string msg);
+};
 #endif // MESSAGE_H

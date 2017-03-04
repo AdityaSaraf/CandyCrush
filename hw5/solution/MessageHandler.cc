@@ -49,6 +49,9 @@ Message MessageHandler::GetNextMessage() {
     } else if (!strcmp(type, "bye")) {
       ByeMessage msg(data);
       return msg;
+    } else if (!strcmp(type, "requestmove")) {
+      ByeMessage msg(data);
+      return msg;
     } else {
       Message msg(data);
       return msg;
