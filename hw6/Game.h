@@ -2,6 +2,10 @@
 #define GAME_H
 
 #include <iostream>
+#include <vector>
+#include "Move.h"
+
+using namespace std;
 
 extern "C" {
   #include "Array2D.h"
@@ -17,6 +21,7 @@ class Game {
   int GetCols();
   int GetMoves();
   int GetScore();
+  vector<Move> GenerateMoves();
   int Swap(const int r1, const int c1, const int r2, const int c2);
   std::string SerializeCurrentState(); 
   bool IsWon();
