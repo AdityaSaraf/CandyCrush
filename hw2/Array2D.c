@@ -29,6 +29,7 @@ Array2D Array2D_create(int rows, int cols) {
 
   a->arr = malloc(sizeof(Array2DData_t)*(rows*cols));
   if (!(a->arr)) {
+    free(a);
     return NULL;
   }
   

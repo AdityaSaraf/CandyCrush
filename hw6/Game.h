@@ -14,6 +14,7 @@ extern "C" {
 class Game {
  public:
   Game();
+  Game(const Game &other);
   void Init(const char *fileName);
   int GetColor(const int row, const int col);
   int GetState(const int row, const int col);
@@ -40,9 +41,6 @@ class Game {
   bool MatchTemplate(const int row, const int col, const int t);
   void ApplyGravity();
   void ShiftDown(int startingRow, int col);
-
-  Game(const Game &copy) = delete;
-  Game &operator=(Game rhs) = delete;
+  Array2D CopyBoard(Array2D other);
 };
-
 #endif // GAME_H

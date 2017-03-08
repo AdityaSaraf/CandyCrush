@@ -32,6 +32,31 @@ Game::Game() {
 
 }
 
+Game::Game(const Game &other) {
+  this->gameID = other.gameID;
+  this->moves = other.moves;
+  this->score = other.score;
+  this->colors = other.colors;
+  this->extOffset = (int*) malloc(sizeof(int) * other.extBoard->cols);
+  this->extBoard = CopyBoard(other.extBoard);
+  this->boardState = CopyBoard(other.boardState);
+  this->boardCandies = CopyBoard(other.boardCandies);
+}
+
+Array2D Game::CopyBoard(Array2D other) {
+  Array2D result = Array2D_create(other->rows, other->cols);
+  if (!result) return NULL;
+  for (int i = 0; i < result->rows; i++) {
+    for (int j = 0; j < result->cols; j++) {
+      int el = *(int*) Array2D_get(other, i, j);
+      int *newEl = (int*) malloc(sizeof(int));
+      *newEl = el;
+      Array2D_set(result, i, j, (Array2DData_t) newEl);
+    }
+  }
+  return result;
+}
+
 void Game::Init(const char *jString) {
   json_t *root;
   json_error_t error;
