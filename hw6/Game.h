@@ -22,6 +22,7 @@ class Game {
   int GetCols();
   int GetMoves();
   int GetScore();
+  Array2D GetBoardState();
   vector<Move> GenerateMoves();
   void ApplyMove(Move m);
   int Swap(const int r1, const int c1, const int r2, const int c2);

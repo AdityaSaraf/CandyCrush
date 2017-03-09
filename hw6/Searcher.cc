@@ -20,13 +20,14 @@ queue<Game> q;
 mutex globalMutex;
 condition_variable cv;
 bool done;
+SimpleEvaluator eval;
 
 using namespace std;
 
 Searcher::Searcher() {}
 
 void Searcher::SetDone() {
-  done = true;
+  done = !done;
 }
 
 void Searcher::SetEvaluator(SimpleEvaluator evaluator) {
@@ -49,13 +50,13 @@ Move runBestMove(int depth) {
 
     Game next = q.front();
     q.pop();
-    vector<Move> moves = next.GenerateMoves();
     lk.unlock();    
+    vector<Move> moves = next.GenerateMoves();
 
-    for (auto it = moves.cbegin(); it == moves.cend(); it++) {
+    for (auto it = moves.begin(); it == moves.end(); it++) {
       Game newGame(next);
       newGame.ApplyMove(*it);
-      thread tr(runBestMove, depth + 1);
+      atomic_counter++;
       lk.lock();
       q.push(newGame);
       lk.unlock();

@@ -3,6 +3,8 @@
 #include <vector>
 #include "Move.h"
 
+using namespace std;
+
 extern "C" {
   #include <jansson.h>
   #include "Array2D.h"
@@ -79,6 +81,7 @@ void Game::Init(const char *jString) {
   json_t *extb = json_object_get(gameDef, "extensioncolor");
   extBoard = deserialize(extb);
   extOffset = (int*) malloc(sizeof(int) * extBoard->cols);
+
   if (gameState) {
     // get boardCandies and boardState from gameState, moves, score, offset
     json_t *bCandies = json_object_get(gameState, "boardcandies");
@@ -168,8 +171,17 @@ int Game::GetScore() {
   return score;
 }
 
+Array2D Game::GetBoardState() {
+  return boardState;
+}
+
 vector<Move> Game::GenerateMoves() {
   vector<Move> result;
+  for (int i = 0; i < boardCandies->rows; i++) {
+    for(int j = 0; j < boardCandies->cols; j++) {
+      
+    }
+  }
   return result;
 }
 

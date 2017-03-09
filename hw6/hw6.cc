@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
     hw5_net::ClientSocket csock(serverName, serverPort);
     MessageHandler msgh(csock.getAsFileDescriptor());
 
-    HelloMessage hellomsg("{\"action\": \"hello\"}");
+    HelloMessage hellomsg("{\"action\": \"hello\", \"teamname\": \"agrajag\"}");
     msgh.SendMessage(hellomsg);
 
     Message msg = msgh.GetNextMessage();
@@ -96,6 +96,7 @@ int main(int argc, char **argv) {
         json_decref(root);
         MyMoveMessage mymovemsg(msgStr);
         msgh.SendMessage(mymovemsg);
+
         fut = async(runSearch, searcher, game);
       }
       if (msg.GetType() == "bye") {
