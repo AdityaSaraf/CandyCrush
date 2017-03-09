@@ -19,15 +19,28 @@ atomic<int> atomic_counter(0);
 queue<Game> q;
 mutex globalMutex;
 condition_variable cv;
-bool done;
+bool done = false;
 SimpleEvaluator eval;
+Move bestMove;
+vector<thread> threads;
 
 using namespace std;
 
 Searcher::Searcher() {}
 
-void Searcher::SetDone() {
-  done = !done;
+Move Searcher::Done() {
+  done = true;
+  cv.notify_all();
+  for (auto it = threads.begin(); it == threads.end(); it++) {
+    (*it).join();
+  }
+  return bestMove;
+}
+
+void Searcher::Reset() {
+  done = false;
+  Move emptyMove;
+  bestMove = emptyMove;
 }
 
 void Searcher::SetEvaluator(SimpleEvaluator evaluator) {
@@ -37,8 +50,7 @@ void Searcher::SetEvaluator(SimpleEvaluator evaluator) {
 // g is the current game instance, moveChain is the chain of moves to get from the live game state
 // to the current game state (size of moveChain is # of moves that have occurred). modify the evaluator
 // (like how in chess we did .negate() to switch turns), 
-Move runBestMove(Game g, vector<Move> moveChain) {
-  Move m;
+void runBestMove(int move) {
   unique_lock<mutex> lk(globalMutex);
   while (1) {
     lk.lock();
@@ -59,20 +71,28 @@ Move runBestMove(Game g, vector<Move> moveChain) {
     for (auto it = moves.begin(); it == moves.end(); it++) {
       Game newGame(next);
       newGame.ApplyMove(*it);
+      lk.lock();
+      int score = eval.Evaluate(newGame.GetBoardState()) - 25 * newGame.GetMoves();
+      lk.unlock();
+      if (score > bestMove.GetScore()) {
+        Move refMove(newGame.moveHistory.at(move));
+        Move newBestMove(refMove.GetRow(), refMove.GetCol(), refMove.GetDirection(), score);
+        lk.lock();
+        bestMove = newBestMove;
+        lk.unlock();
+      }
       atomic_counter++;
       lk.lock();
       q.push(newGame);
       lk.unlock();
+      threads.push_back(thread(runBestMove, move));
       cv.notify_one();
     }
   }
-  return m;
 }
 
-Move Searcher::GetBestMove(Game game) {
+void Searcher::GetBestMove(Game game) {
   q.push(game);
-  vector<Move> moves;
-  vector<Move> moveList ;
-  return runBestMove(game, moves);
+  runBestMove(game.GetMoves());
 }
 

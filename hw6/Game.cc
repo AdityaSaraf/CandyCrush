@@ -45,6 +45,7 @@ Game::Game(const Game &other) {
   this->extBoard = CopyBoard(other.extBoard);
   this->boardState = CopyBoard(other.boardState);
   this->boardCandies = CopyBoard(other.boardCandies);
+  this->moveHistory = other.moveHistory;
 }
 
 Array2D Game::CopyBoard(Array2D other) {
@@ -193,6 +194,7 @@ void Game::ApplyMove(Move m) {
   else if (dir == 1) this->Swap(row, col, row, col + 1);
   else if (dir == 2) this->Swap(row, col, row + 1, col);
   else if (dir == 3) this->Swap(row, col, row - 1, col);
+  moveHistory.push_back(m);
 }
 
 int Game::Swap(const int r1, const int c1, const int r2, const int c2) {

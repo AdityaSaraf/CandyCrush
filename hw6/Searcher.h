@@ -17,11 +17,12 @@ class Searcher {
  public:
   Searcher();
   void SetEvaluator(SimpleEvaluator evaluator);
-  Move GetBestMove(Game game);
-  void SetDone();
+  void GetBestMove(Game game);
+  Move Done();
+  void Reset();
+  SimpleEvaluator evaluator;
 
  private:
-  SimpleEvaluator evaluator;
 };
 
 #endif // SEARCHER_H

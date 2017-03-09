@@ -13,6 +13,7 @@ extern "C" {
 
 class Game {
  public:
+  vector<Move> moveHistory;
   Game();
   Game(const Game &other);
   void Init(const char *fileName);

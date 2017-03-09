@@ -20,8 +20,8 @@ extern "C" {
   #include <jansson.h>
 }
 
-Move runSearch(Searcher searcher, Game game) {
-  return searcher.GetBestMove(game);
+void runSearch(Searcher searcher, Game game) {
+  searcher.GetBestMove(game);
 }
 
 void usage(const char *exeName) {
@@ -62,12 +62,13 @@ int main(int argc, char **argv) {
     searcher.SetEvaluator(eval);
     
     // find the best move and wait for a requestmove message
-    future<Move> fut = async(runSearch, searcher, game);
+    thread th(runSearch, searcher, game);
     while (1) {
       msg = msgh.GetNextMessage();
       if (msg.GetType() == "requestmove") {
-        searcher.SetDone();
-        Move m = fut.get();
+        Move m = searcher.Done();
+        th.join();
+        searcher.Reset();
         if (m.GetDirection() == -1) return 0;
         game.ApplyMove(m);
         
@@ -96,8 +97,7 @@ int main(int argc, char **argv) {
         json_decref(root);
         MyMoveMessage mymovemsg(msgStr);
         msgh.SendMessage(mymovemsg);
-
-        fut = async(runSearch, searcher, game);
+        th = thread(runSearch, searcher, game);
       }
       if (msg.GetType() == "bye") {
         return 1;
