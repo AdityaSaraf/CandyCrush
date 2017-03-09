@@ -1,5 +1,7 @@
 #include "Game.h"
 #include <iostream>
+#include <vector>
+#include "Move.h"
 
 extern "C" {
   #include <jansson.h>
@@ -166,6 +168,21 @@ int Game::GetScore() {
   return score;
 }
 
+vector<Move> Game::GenerateMoves() {
+  vector<Move> result;
+  return result;
+}
+
+void Game::ApplyMove(Move m) {
+  int row = m.GetRow();
+  int col = m.GetCol();
+  int dir = m.GetDirection();
+  if (dir == 0) this->Swap(row, col, row, col - 1);
+  else if (dir == 1) this->Swap(row, col, row, col + 1);
+  else if (dir == 2) this->Swap(row, col, row + 1, col);
+  else if (dir == 3) this->Swap(row, col, row - 1, col);
+}
+
 int Game::Swap(const int r1, const int c1, const int r2, const int c2) {
   // swap, if no change, swap back
   int code = Array2D_swap(boardCandies, r1, c1, r2, c2);
@@ -174,8 +191,7 @@ int Game::Swap(const int r1, const int c1, const int r2, const int c2) {
     return -1;
   }
   moves++;
-  if (!this->Settle())
-  {
+  if (!this->Settle()) {
     Array2D_swap(boardCandies, r1, c1, r2, c2);
     return 0;
   }

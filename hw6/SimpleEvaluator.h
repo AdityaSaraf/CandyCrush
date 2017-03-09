@@ -7,7 +7,6 @@ extern "C" {
 
 class SimpleEvaluator {
  public:
-  SimpleEvaluator();
   int Evaluate(Array2D state);
 
  private:

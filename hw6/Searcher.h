@@ -1,6 +1,10 @@
 #ifndef SEARCHER_H
 #define SEARCHER_H
 
+#include <queue>
+#include <mutex>
+#include <condition_variable>
+
 #include "SimpleEvaluator.h"
 #include "Move.h"
 #include "Game.h"
@@ -14,6 +18,7 @@ class Searcher {
   Searcher();
   void SetEvaluator(SimpleEvaluator evaluator);
   Move GetBestMove(Game game);
+  void SetDone();
 
  private:
   SimpleEvaluator evaluator;

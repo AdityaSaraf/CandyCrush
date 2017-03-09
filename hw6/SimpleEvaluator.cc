@@ -4,8 +4,6 @@ extern "C" {
   #include "Array2D.h"
 }
 
-SimpleEvaluator::SimpleEvaluator() {}
-
 int SimpleEvaluator::Evaluate(Array2D states) {
   int sum = 0;
   for (int i = 0; i < states->rows; i++) {

@@ -23,6 +23,7 @@ class Game {
   int GetMoves();
   int GetScore();
   vector<Move> GenerateMoves();
+  void ApplyMove(Move m);
   int Swap(const int r1, const int c1, const int r2, const int c2);
   std::string SerializeCurrentState(); 
   bool IsWon();
