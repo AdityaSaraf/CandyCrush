@@ -34,7 +34,10 @@ void Searcher::SetEvaluator(SimpleEvaluator evaluator) {
   this->evaluator = evaluator;
 }
 
-Move runBestMove(int depth) {
+// g is the current game instance, moveChain is the chain of moves to get from the live game state
+// to the current game state (size of moveChain is # of moves that have occurred). modify the evaluator
+// (like how in chess we did .negate() to switch turns), 
+Move runBestMove(Game g, vector<Move> moveChain) {
   Move m;
   unique_lock<mutex> lk(globalMutex);
   while (1) {
@@ -68,6 +71,8 @@ Move runBestMove(int depth) {
 
 Move Searcher::GetBestMove(Game game) {
   q.push(game);
-  return runBestMove(0);
+  vector<Move> moves;
+  vector<Move> moveList ;
+  return runBestMove(game, moves);
 }
 
