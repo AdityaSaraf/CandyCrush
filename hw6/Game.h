@@ -40,8 +40,8 @@ class Game {
   Array2D extBoard;
   Array2D boardState;
   Array2D boardCandies;
-  bool Settle();
-  bool MatchTemplate(const int row, const int col, const int t);
+  bool Settle(bool fire);
+  bool MatchTemplate(const int row, const int col, const int t, bool fire);
   void ApplyGravity();
   void ShiftDown(int startingRow, int col);
   Array2D CopyBoard(Array2D other);

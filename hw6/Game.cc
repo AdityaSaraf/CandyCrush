@@ -140,7 +140,7 @@ void Game::Init(const char *jString) {
     }
     this->ApplyGravity();
   }
-  this->Settle();
+  this->Settle(true);
 
   //json_decref(gameDef);
   //json_decref(gameState);
@@ -179,9 +179,29 @@ Array2D Game::GetBoardState() {
 
 vector<Move> Game::GenerateMoves() {
   vector<Move> result;
-  for (int i = 0; i < boardCandies->rows; i++) {
-    for(int j = 0; j < boardCandies->cols; j++) {
-      
+  for (int i = 0; i < boardCandies->rows-1; i++) {
+    for(int j = 0; j < boardCandies->cols-1; j++) {
+      // try swapping right
+      Array2D_swap(boardCandies, i, j, i+1, j);
+      // check if any template fires, add to result if it does
+      if (this->Settle(false))
+      {
+        Move m(i, j, 1);
+        result.push_back(m);
+      }
+      // swap back
+      Array2D_swap(boardCandies, i, j, i+1, j);
+
+      // try swapping up
+      Array2D_swap(boardCandies, i, j, i, j+1);
+      // check if any template fires, add to result if it does
+      if (this->Settle(false))
+      {
+        Move n(i, j, 3);
+        result.push_back(n);
+      }
+      // swap back
+      Array2D_swap(boardCandies, i, j, i, j+1);
     }
   }
   return result;
@@ -206,14 +226,14 @@ int Game::Swap(const int r1, const int c1, const int r2, const int c2) {
     return -1;
   }
   moves++;
-  if (!this->Settle()) {
+  if (!this->Settle(true)) {
     Array2D_swap(boardCandies, r1, c1, r2, c2);
     return 0;
   }
   return 1;
 }
 
-bool Game::Settle() {
+bool Game::Settle(bool fire) {
   bool fired = false;
   int counter = 0;
   do{
@@ -248,18 +268,23 @@ bool Game::Settle() {
           // tries all possible templates
           // fires if template matches
           // sets fired to true if any template fired
-          fired |= this->MatchTemplate(i, j, t);
+          fired |= this->MatchTemplate(i, j, t, fire);
         }
       }
     }
     // apply gravity
     if (fired)
     {
-      this->ApplyGravity();
+      // don't bother trying gravity if didn't fire template
+      if (fire)
+      {
+        this->ApplyGravity();
+      }
       counter++;
     }
     // if something was fired then gravity had an effect and so we should settle the board again
-  } while (fired && counter < 1000);
+    // if we don't fire, don't loop
+  } while (fired && counter < 1000 && fire);
   // counter = 0 means that no template matched/no template fired
   if (counter == 0)
   {
@@ -268,7 +293,7 @@ bool Game::Settle() {
   return true;
 }
 
-bool Game::MatchTemplate(const int row, const int col, const int t) {
+bool Game::MatchTemplate(const int row, const int col, const int t, bool fire) {
   // if 0, match vFour
   // if 1, match hFour
   // if 2, match vThree
@@ -319,6 +344,10 @@ bool Game::MatchTemplate(const int row, const int col, const int t) {
       delete[] candies;
       return false;
     }
+  }
+  if (!fire)
+  {
+    return true;
   }
   // fire template + decrement the board state in the fired spaces
   for (int i = 0; i <= matches; i++)

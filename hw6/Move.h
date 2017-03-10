@@ -3,36 +3,40 @@
 
 class Move {
  public:
-  Move() { Move(-1, -1, -1, 0); }
-  Move(int row, int col, int direction) { Move(row, col, direction, 0); }
+  Move() :  _row(-1),
+            _col(-1),
+            _direction(-1),
+            _score(0) {}
+  Move(int row, int col, int direction) : _row(row),
+                                          _col(col),
+                                          _direction(direction),
+                                          _score(0) {}
   Move(int row, int col, int direction, 
-       int score) : row(row), 
-                    col(col),
-                    direction(direction),
-                    score(score) {}
+       int score) : _row(row), 
+                    _col(col),
+                    _direction(direction),
+                    _score(score) {}
   Move(const Move &other) {
-    this->row = other.row;
-    this->col = other.col;
-    this->direction = other.direction;
-    this->score = other.score;
+    this->_row = other._row;
+    this->_col = other._col;
+    this->_direction = other._direction;
+    this->_score = other._score;
   }
   Move operator=(const Move &other) {
-    Move result(other.row, other.col, other.direction, other.score);
+    Move result(other._row, other._col, other._direction, other._score);
     return result;
   }
 
-  int GetRow() { return row; }
-  int GetCol() { return col; }
-  int GetDirection() { return direction; }
-  int GetDepth() { return depth; }
-  int GetScore() { return score; }
+  int GetRow() { return _row; }
+  int GetCol() { return _col; }
+  int GetDirection() { return _direction; }
+  int GetScore() { return _score; }
   
  private:
-  int row;
-  int col;
-  int direction;
-  int depth;
-  int score;
+  int _row;
+  int _col;
+  int _direction;
+  int _score;
 };
 
 #endif //MOVE_H
