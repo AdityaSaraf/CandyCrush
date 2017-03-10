@@ -1,9 +1,9 @@
 #include <atomic>
 #include <thread>
-#include <mutex>
+#include <future>
+#include <utility>
 #include <queue>
 #include <vector>
-#include <condition_variable>
 
 #include "Searcher.h"
 #include "SimpleEvaluator.h"
@@ -14,85 +14,59 @@ extern "C" {
   #include "Array2D.h"
 }
 
-atomic<int> atomic_counter(0);
-
-queue<Game> q;
-mutex globalMutex;
-condition_variable cv;
-bool done = false;
+atomic<int> Searcher::atomic_counter(0);
 SimpleEvaluator eval;
-Move bestMove;
-vector<thread> threads;
+bool Searcher::done = false;
 
 using namespace std;
 
 Searcher::Searcher() {}
 
-Move Searcher::Done() {
-  done = true;
-  cv.notify_all();
-  for (auto it = threads.begin(); it == threads.end(); it++) {
-    (*it).join();
-  }
-  return bestMove;
-}
-
-void Searcher::Reset() {
-  done = false;
-  Move emptyMove;
-  bestMove = emptyMove;
-}
-
-void Searcher::SetEvaluator(SimpleEvaluator evaluator) {
-  this->evaluator = evaluator;
-}
-
 // g is the current game instance, moveChain is the chain of moves to get from the live game state
 // to the current game state (size of moveChain is # of moves that have occurred). modify the evaluator
 // (like how in chess we did .negate() to switch turns), 
-void runBestMove(int move) {
-  unique_lock<mutex> lk(globalMutex);
-  while (1) {
-    lk.lock();
-    while(q.empty() & !done) {
-      cv.wait(lk);
-    }
-    
-    if (done) {
-      lk.unlock();
-      break;
-    }
-
+int Searcher::runBestMove(Game game) {
+  int bestScore = -21474836;
+  queue<Game> q;
+  q.push(game);
+  while (!Searcher::done && !q.empty()) {
     Game next = q.front();
     q.pop();
-    lk.unlock();    
     vector<Move> moves = next.GenerateMoves();
-
     for (auto it = moves.begin(); it == moves.end(); it++) {
       Game newGame(next);
       newGame.ApplyMove(*it);
-      lk.lock();
+      Searcher::atomic_counter++;
       int score = eval.Evaluate(newGame.GetBoardState()) - 25 * newGame.GetMoves();
-      lk.unlock();
-      if (score > bestMove.GetScore()) {
-        Move refMove(newGame.moveHistory.at(move));
-        Move newBestMove(refMove.GetRow(), refMove.GetCol(), refMove.GetDirection(), score);
-        lk.lock();
-        bestMove = newBestMove;
-        lk.unlock();
+      if (bestScore < score) {
+        bestScore = score;
       }
-      atomic_counter++;
-      lk.lock();
       q.push(newGame);
-      lk.unlock();
-      threads.push_back(thread(runBestMove, move));
-      cv.notify_one();
     }
   }
+  return bestScore;
 }
 
-void Searcher::GetBestMove(Game game) {
-  q.push(game);
-  runBestMove(game.GetMoves());
+Move Searcher::GetBestMove(Game game) {
+  vector<Move> moves = game.GenerateMoves();
+  vector<future<int>> futures;
+  for (int i = 0; i < 4; i++) {
+    Move m = moves.at(i);
+    Game newGame(game);
+    newGame.ApplyMove(m);
+    Searcher::atomic_counter++;
+    packaged_task<int(Game)> tsk(runBestMove);
+    future<int> fut = tsk.get_future();
+    thread(move(tsk), newGame).detach();
+  }
+  int bestScore = futures.at(0).get();
+  Move bestMove = moves.at(0);
+  for (int i = 1; i < 4; i++) {
+    int nextScore = futures.at(i).get();
+    if (bestScore < nextScore) {
+      bestMove = moves.at(i);
+    }
+  }
+  return bestMove;
 }
 

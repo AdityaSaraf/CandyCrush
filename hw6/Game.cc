@@ -1,6 +1,7 @@
-#include "Game.h"
 #include <iostream>
 #include <vector>
+
+#include "Game.h"
 #include "Move.h"
 
 using namespace std;

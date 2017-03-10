@@ -16,11 +16,11 @@ extern "C" {
 class Searcher {
  public:
   Searcher();
-  void SetEvaluator(SimpleEvaluator evaluator);
-  void GetBestMove(Game game);
-  Move Done();
-  void Reset();
-  SimpleEvaluator evaluator;
+  Move GetBestMove(Game game);
+  static int runBestMove(Game game);
+  static void setDone();
+  static bool done;
+  static atomic<int> atomic_counter;
 
  private:
 };
