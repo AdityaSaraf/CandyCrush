@@ -4,8 +4,7 @@
 #include <string>
 #include <cstdlib>
 #include <thread>
-#include <future>
-#include <utility>
+#include <atomic>
 
 using namespace std;
 
@@ -20,8 +19,8 @@ extern "C" {
   #include <jansson.h>
 }
 
-Move getBestMove(Game game, Searcher searcher) {
-  return searcher.GetBestMove(game);
+void getBestMove(Game game, Searcher searcher) {
+  searcher.GetBestMove(game);
 }
 
 void usage(const char *exeName) {
@@ -58,17 +57,15 @@ int main(int argc, char **argv) {
     game.Init(msg.GetData().c_str());
 
     Searcher searcher;
-    packaged_task<Move(Game, Searcher)> tsk(getBestMove);
-    future<Move> fut = tsk.get_future();
-    thread th(move(tsk), game, searcher);
+    thread th(getBestMove, game, searcher);
+    Move m = Searcher::setDone();
     
+/*
     // find the best move and wait for a requestmove message
     while (1) {
       msg = msgh.GetNextMessage();
       if (msg.GetType() == "requestmove") {
-        Searcher::done = true;
-        Move m = fut.get();
-        Searcher::done = false;
+        Move m = Searcher::setDone();
         if (m.GetDirection() == -1) return 0;
         game.ApplyMove(m);
         
@@ -85,16 +82,17 @@ int main(int argc, char **argv) {
         json_object_set_new(jmove, "row", row);
         json_object_set_new(jmove, "column", col);
         json_object_set_new(jmove, "direction", dir);
-        json_t *moves = json_integer(Searcher::atomic_counter.load());
+        int moves = Searcher::atomic_counter.load();
+        json_t *jmoves = json_integer(moves);
         Searcher::atomic_counter = 0;
 
-        th = thread(move(tsk), game, searcher);
+        //th = thread(getBestMove, game, searcher);
 
         json_object_set_new(root, "action", action);
         json_object_set_new(root, "teamname", teamname);
         json_object_set_new(root, "gameinstance", gameinstance);
         json_object_set_new(root, "move", jmove);
-        json_object_set_new(root, "movesevaluated", moves);
+        json_object_set_new(root, "movesevaluated", jmoves);
         char *msgcStr = json_dumps(root, 0);
         string msgStr(msgcStr);
         free(msgcStr);
@@ -106,10 +104,10 @@ int main(int argc, char **argv) {
         return 1;
       }
     }
+  */
   } catch (string errString) {
     cerr << errString << endl;
     return 0;
   }
-
   return 1;
 }

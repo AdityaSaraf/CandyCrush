@@ -43,6 +43,9 @@ Game::Game(const Game &other) {
   this->score = other.score;
   this->colors = other.colors;
   this->extOffset = (int*) malloc(sizeof(int) * other.extBoard->cols);
+  for (int i = 0; i < other.extBoard->cols; i++) {
+    extOffset[i] = other.extOffset[i];
+  }
   this->extBoard = CopyBoard(other.extBoard);
   this->boardState = CopyBoard(other.boardState);
   this->boardCandies = CopyBoard(other.boardCandies);
