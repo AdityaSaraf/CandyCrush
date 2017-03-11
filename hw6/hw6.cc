@@ -58,9 +58,7 @@ int main(int argc, char **argv) {
 
     Searcher searcher;
     thread th(getBestMove, game, searcher);
-    Move m = Searcher::setDone();
     
-/*
     // find the best move and wait for a requestmove message
     while (1) {
       msg = msgh.GetNextMessage();
@@ -104,7 +102,6 @@ int main(int argc, char **argv) {
         return 1;
       }
     }
-  */
   } catch (string errString) {
     cerr << errString << endl;
     return 0;
