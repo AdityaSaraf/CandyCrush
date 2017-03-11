@@ -37,12 +37,12 @@ Move Searcher::setDone() {
 // (like how in chess we did .negate() to switch turns), 
 void Searcher::runBestMove(int depth) {
   unique_lock<mutex> lk(globalMutex);
-  while (!Searcher::done) {
+  lk.unlock();
+  while (1) {
     lk.lock();
     while (!Searcher::done && Searcher::states.empty()) {
       cv.wait(lk);
     }
-    lk.unlock();
   
     if (Searcher::done) {
       lk.unlock();
@@ -55,9 +55,10 @@ void Searcher::runBestMove(int depth) {
     vector<Move> moves = next.GenerateMoves();
     for (auto &c : moves) {
       Game newGame(next);
+      cout << c.GetRow() << ", " << c.GetCol() << ", " << c.GetDirection() << endl;
       newGame.ApplyMove(c);
-      lk.lock();
       int score = eval.Evaluate(newGame.GetBoardState()) - 10 * newGame.GetMoves();
+      lk.lock();
       if (score > Searcher::bestMove.GetScore()) {
         Move curMove = newGame.moveHistory.at(depth);
         Searcher::bestMove.SetRow(curMove.GetRow());
@@ -79,11 +80,7 @@ void Searcher::GetBestMove(Game game) {
   Searcher::bestMove.SetDirection(-1);
   Searcher::bestMove.SetScore(eval.Evaluate(game.GetBoardState()) - 10 * game.GetMoves());
   Searcher::states.push(game);
-  vector<thread> threads;
   for (int i = 0; i < 10; i++) {
-    threads.push_back(thread(Searcher::runBestMove, game.GetMoves()));
-  }
-  for (auto &c : threads) {
-    c.join();
+    thread(Searcher::runBestMove, game.GetMoves()).detach();
   }
 }

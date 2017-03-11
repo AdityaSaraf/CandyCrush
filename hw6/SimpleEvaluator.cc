@@ -1,8 +1,11 @@
+#include <iostream>
 #include "SimpleEvaluator.h"
 
 extern "C" {
   #include "Array2D.h"
 }
+
+using namespace std;
 
 int SimpleEvaluator::Evaluate(Array2D states) {
   int sum = 0;

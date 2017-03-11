@@ -16,8 +16,6 @@ Array2D deserialize(json_t *root) {
   json_t *jcols = json_object_get(root, "columns");
   int rows = json_integer_value(jrows);
   int cols = json_integer_value(jcols);
-  json_decref(jrows);
-  json_decref(jcols);
   Array2D result = Array2D_create(rows, cols);
   json_t *data = json_object_get(root, "data");
   json_t *el;
@@ -27,8 +25,6 @@ Array2D deserialize(json_t *root) {
     *n = json_integer_value(el);
     Array2D_set(result, i/cols, i%cols, n);
   }
-  json_decref(el);
-  json_decref(data);
   //json_decref(root);
   return result;
 }
@@ -57,9 +53,9 @@ Array2D Game::CopyBoard(Array2D other) {
   if (!result) return NULL;
   for (int i = 0; i < result->rows; i++) {
     for (int j = 0; j < result->cols; j++) {
-      int el = *(int*) Array2D_get(other, i, j);
+      int *el = (int*) Array2D_get(other, i, j);
       int *newEl = (int*) malloc(sizeof(int));
-      *newEl = el;
+      *newEl = *el;
       Array2D_set(result, i, j, (Array2DData_t) newEl);
     }
   }
@@ -77,11 +73,9 @@ void Game::Init(const char *jString) {
 
   json_t *gameid = json_object_get(gameDef, "gameid");
   gameID = json_integer_value(gameid);
-  json_decref(gameid);
 
   json_t *jcolors = json_object_get(gameDef, "colors");
   colors = json_integer_value(jcolors);
-  json_decref(jcolors);
 
   json_t *extb = json_object_get(gameDef, "extensioncolor");
   extBoard = deserialize(extb);
@@ -94,8 +88,6 @@ void Game::Init(const char *jString) {
     json_t *jcols = json_object_get(bCandies, "columns");
     int rows = json_integer_value(jrows);
     int cols = json_integer_value(jcols);
-    json_decref(jrows);
-    json_decref(jcols);
 
     boardCandies = Array2D_create(rows, cols);
     json_t *data = json_object_get(bCandies, "data");
@@ -107,18 +99,14 @@ void Game::Init(const char *jString) {
       *n = json_integer_value(num);
       Array2D_set(boardCandies, i/cols, i%cols, n);
     }
-    json_decref(data);
-    json_decref(bCandies);
     
     json_t *bState = json_object_get(gameState, "boardstate");
     boardState = deserialize(bState);
     json_t *jmoves = json_object_get(gameState, "moves");
     moves = json_integer_value(jmoves);
-    json_decref(jmoves);
 
     json_t *jscore = json_object_get(gameState, "currentscore");
     score = json_integer_value(jscore);
-    json_decref(jscore);
     
     json_t *joffset = json_object_get(gameState, "extensionoffset");
     for (int i = 0; i < (int) json_array_size(joffset); i++) {
@@ -216,8 +204,8 @@ void Game::ApplyMove(Move m) {
   int dir = m.GetDirection();
   if (dir == 0) this->Swap(row, col, row, col - 1);
   else if (dir == 1) this->Swap(row, col, row, col + 1);
-  else if (dir == 2) this->Swap(row, col, row + 1, col);
-  else if (dir == 3) this->Swap(row, col, row - 1, col);
+  else if (dir == 2) this->Swap(row, col, row - 1, col);
+  else if (dir == 3) this->Swap(row, col, row + 1, col);
   moveHistory.push_back(m);
 }
 
@@ -228,11 +216,12 @@ int Game::Swap(const int r1, const int c1, const int r2, const int c2) {
   {
     return -1;
   }
-  moves++;
   if (!this->Settle(true)) {
+    cout << "should never get here after starting" << endl;
     Array2D_swap(boardCandies, r1, c1, r2, c2);
     return 0;
   }
+  moves++;
   return 1;
 }
 
