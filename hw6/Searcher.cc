@@ -57,6 +57,7 @@ void Searcher::runBestMove(int depth) {
       Game newGame(next);
       cout << c.GetRow() << ", " << c.GetCol() << ", " << c.GetDirection() << endl;
       newGame.ApplyMove(c);
+      cout << "test" << endl;
       int score = eval.Evaluate(newGame.GetBoardState()) - 10 * newGame.GetMoves();
       lk.lock();
       if (score > Searcher::bestMove.GetScore()) {

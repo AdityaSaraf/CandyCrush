@@ -199,6 +199,13 @@ vector<Move> Game::GenerateMoves() {
 }
 
 void Game::ApplyMove(Move m) {
+  for (int i = boardCandies->rows - 1; i >= 0; i--) {
+    for (int j = 0; j < boardCandies->cols; j++) {
+      cout << *(int*) Array2D_get(boardCandies, i, j) << " ";
+    }
+    cout << endl;
+  }
+  cout << endl;
   int row = m.GetRow();
   int col = m.GetCol();
   int dir = m.GetDirection();
