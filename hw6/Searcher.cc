@@ -76,7 +76,7 @@ void Searcher::GetBestMove(Game game) {
   Searcher::bestMove.SetRow(-1);
   Searcher::bestMove.SetCol(-1);
   Searcher::bestMove.SetDirection(-1);
-  Searcher::bestMove.SetScore(0);
+  Searcher::bestMove.SetScore(eval.Evaluate(game.GetBoardState()) - 10 * game.GetMoves());
   Searcher::states.push(game);
   vector<thread> threads;
   for (int i = 0; i < 10; i++) {
