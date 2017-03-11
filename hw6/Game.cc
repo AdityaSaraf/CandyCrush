@@ -172,23 +172,23 @@ vector<Move> Game::GenerateMoves() {
   vector<Move> result;
   for (int i = 0; i < boardCandies->rows-1; i++) {
     for(int j = 0; j < boardCandies->cols-1; j++) {
-      // try swapping right
+      // try swapping up
       Array2D_swap(boardCandies, i, j, i+1, j);
       // check if any template fires, add to result if it does
       if (this->Settle(false))
       {
-        Move m(i, j, 1);
+        Move m(i, j, 3);
         result.push_back(m);
       }
       // swap back
       Array2D_swap(boardCandies, i, j, i+1, j);
 
-      // try swapping up
+      // try swapping right
       Array2D_swap(boardCandies, i, j, i, j+1);
       // check if any template fires, add to result if it does
       if (this->Settle(false))
       {
-        Move n(i, j, 3);
+        Move n(i, j, 1);
         result.push_back(n);
       }
       // swap back
