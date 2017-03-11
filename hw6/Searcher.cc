@@ -42,6 +42,7 @@ void Searcher::runBestMove(int depth) {
     while (!Searcher::done && Searcher::states.empty()) {
       cv.wait(lk);
     }
+    lk.unlock();
   
     if (Searcher::done) {
       lk.unlock();
