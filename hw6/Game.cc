@@ -193,7 +193,7 @@ vector<Move> Game::GenerateMoves() {
       // check if any template fires, add to result if it does
       if (this->Settle(false))
       {
-        Move m(i, j, 3);
+        Move m(i, j, 2);
         result.push_back(m);
       }
       // swap back
@@ -227,8 +227,8 @@ void Game::ApplyMove(Move m) {
   int dir = m.GetDirection();
   if (dir == 0) this->Swap(row, col, row, col - 1);
   else if (dir == 1) this->Swap(row, col, row, col + 1);
-  else if (dir == 2) this->Swap(row, col, row - 1, col);
-  else if (dir == 3) this->Swap(row, col, row + 1, col);
+  else if (dir == 3) this->Swap(row, col, row - 1, col);
+  else if (dir == 2) this->Swap(row, col, row + 1, col);
   moveHistory.push_back(m);
 }
 
