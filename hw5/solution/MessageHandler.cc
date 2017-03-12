@@ -17,17 +17,17 @@ MessageHandler::MessageHandler(int fd) : cs(fd){}
 
 Message MessageHandler::GetNextMessage() {
   // wait for a message from the other socket, decode the action, do it
-  char buf[5000];
+  char buf[50000];
   int bracketCount = 1;
   int place = 1;
   int readCount;
-  while ((readCount = cs.WrappedRead(buf, 4999))) {
-    while (bracketCount > 0 && place < 5000) {
+  while ((readCount = cs.WrappedRead(buf, 49999))) {
+    while (bracketCount > 0 && place < 50000) {
       if (buf[place] == '{') bracketCount++;
       if (buf[place] == '}') bracketCount--;
       place++;
     }
-    if (place == 5000)
+    if (place == 50000)
     {
       throw "Error! Message from server was too long!";
     }
