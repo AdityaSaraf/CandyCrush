@@ -66,6 +66,8 @@ int main(int argc, char **argv) {
         Move m = Searcher::setDone();
         th.join();
         if (m.GetDirection() == -1) return 0;
+        cout << m.GetRow() << ", " << m.GetCol() << ", " << m.GetDirection() << endl;
+        game.PrintState();
         game.ApplyMove(m);
         
         json_error_t error;

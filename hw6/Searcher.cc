@@ -89,7 +89,6 @@ void Searcher::GetBestMove(Game game) {
   Searcher::bestMove.SetDirection(-1);
   Searcher::bestMove.SetScore(-999999);
   Searcher::states.push(game);
-  cout << game.GetMoves() << endl;
   for (int i = 0; i < 10; i++) {
     threads.push_back(thread(Searcher::runBestMove, game.GetMoves()));
   }

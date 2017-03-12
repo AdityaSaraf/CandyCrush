@@ -138,6 +138,17 @@ void Game::Init(const char *jString) {
   //json_decref(root);
 }
 
+void Game::PrintState() {
+  for (int i = boardCandies->rows - 1; i >= 0; i--) {
+    for (int j = 0; j < boardCandies->cols; j++) {
+      cout << *(int*) Array2D_get(boardCandies, i, j) << " ";;
+    }
+    cout << endl;
+  }
+  cout << endl;
+}
+  
+
 int Game::GetColor(const int row, const int col) {
   int *result = (int*) Array2D_get(boardCandies, row, col);
   return *result;
