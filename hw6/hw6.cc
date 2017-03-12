@@ -64,6 +64,7 @@ int main(int argc, char **argv) {
       msg = msgh.GetNextMessage();
       if (msg.GetType() == "requestmove") {
         Move m = Searcher::setDone();
+        th.join();
         if (m.GetDirection() == -1) return 0;
         game.ApplyMove(m);
         

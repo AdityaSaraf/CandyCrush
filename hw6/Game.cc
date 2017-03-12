@@ -201,11 +201,11 @@ vector<Move> Game::GenerateMoves() {
 void Game::ApplyMove(Move m) {
   for (int i = boardCandies->rows - 1; i >= 0; i--) {
     for (int j = 0; j < boardCandies->cols; j++) {
-      cout << *(int*) Array2D_get(boardCandies, i, j) << " ";
+      //cout << *(int*) Array2D_get(boardCandies, i, j) << " ";
     }
-    cout << endl;
+    //cout << endl;
   }
-  cout << endl;
+  //cout << endl;
   int row = m.GetRow();
   int col = m.GetCol();
   int dir = m.GetDirection();
@@ -395,9 +395,9 @@ void Game::ShiftDown(int startingRow, int col) {
 
   }
   // fill in the highest row with the extension board
-  cout << "row: " << extOffset[col] << ", col: " << col << endl;
-  cout << "maxExtRow: " << extBoard->rows << ", maxExtCol: " << extBoard->cols << endl;
-  printf("row: %i, col: %i \nmaxextrow: %i, maxextcol: %i", extOffset[col], col, extBoard->rows, extBoard->cols);
+  //cout << "row: " << extOffset[col] << ", col: " << col << endl;
+  //cout << "maxExtRow: " << extBoard->rows << ", maxExtCol: " << extBoard->cols << endl;
+  //printf("row: %i, col: %i \nmaxextrow: %i, maxextcol: %i", extOffset[col], col, extBoard->rows, extBoard->cols);
   int* highestCandy = (int*)(Array2D_get(boardCandies, boardCandies->rows -1, col));
   int replacement = *(int*)(Array2D_get(extBoard, extOffset[col] % extBoard->rows, col));
   *highestCandy = replacement;

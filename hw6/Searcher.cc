@@ -55,9 +55,9 @@ void Searcher::runBestMove(int depth) {
     vector<Move> moves = next.GenerateMoves();
     for (auto &c : moves) {
       Game newGame(next);
-      cout << c.GetRow() << ", " << c.GetCol() << ", " << c.GetDirection() << endl;
+      //cout << c.GetRow() << ", " << c.GetCol() << ", " << c.GetDirection() << endl;
       newGame.ApplyMove(c);
-      cout << "test" << endl;
+      //cout << "test" << endl;
       int score = eval.Evaluate(newGame.GetBoardState()) - 10 * newGame.GetMoves();
       lk.lock();
       if (score > Searcher::bestMove.GetScore()) {
@@ -82,6 +82,6 @@ void Searcher::GetBestMove(Game game) {
   Searcher::bestMove.SetScore(eval.Evaluate(game.GetBoardState()) - 10 * game.GetMoves());
   Searcher::states.push(game);
   for (int i = 0; i < 10; i++) {
-    thread(Searcher::runBestMove, game.GetMoves()).detach();
+    thread(Searcher::runBestMove, game.GetMoves()).join();
   }
 }
