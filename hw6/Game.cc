@@ -224,7 +224,6 @@ int Game::Swap(const int r1, const int c1, const int r2, const int c2) {
     return -1;
   }
   if (!this->Settle(true)) {
-    cout << "should never get here after starting" << endl;
     Array2D_swap(boardCandies, r1, c1, r2, c2);
     return 0;
   }

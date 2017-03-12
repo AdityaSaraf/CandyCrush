@@ -66,7 +66,6 @@ int main(int argc, char **argv) {
         Move m = Searcher::setDone();
         th.join();
         if (m.GetDirection() == -1) return 0;
-        Searcher::done = false;
         game.ApplyMove(m);
         
         json_error_t error;
@@ -97,11 +96,11 @@ int main(int argc, char **argv) {
         string msgStr(msgcStr);
         free(msgcStr);
         json_decref(root);
-        cout << msgStr << endl;
         MyMoveMessage mymovemsg(msgStr);
         msgh.SendMessage(mymovemsg);
       }
       if (msg.GetType() == "bye") {
+        cout << msg.GetData() << endl;
         return 1;
       }
     }

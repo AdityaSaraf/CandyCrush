@@ -34,7 +34,9 @@ Move Searcher::setDone() {
   for (auto &c : threads) {
     c.join();
   }
+  threads.clear();
   Searcher::done = false;
+  while (!Searcher::states.empty()) Searcher::states.pop();
   return Searcher::bestMove;
 }
 
@@ -64,7 +66,7 @@ void Searcher::runBestMove(int depth) {
       //cout << c.GetRow() << ", " << c.GetCol() << ", " << c.GetDirection() << endl;
       newGame.ApplyMove(c);
       //cout << "test" << endl;
-      int score = eval.Evaluate(newGame.GetBoardState()) - 10 * newGame.GetMoves();
+      int score = eval.Evaluate(newGame.GetBoardState());
       lk.lock();
       if (score > Searcher::bestMove.GetScore()) {
         Move curMove = newGame.moveHistory.at(depth);
@@ -85,8 +87,9 @@ void Searcher::GetBestMove(Game game) {
   Searcher::bestMove.SetRow(-1);
   Searcher::bestMove.SetCol(-1);
   Searcher::bestMove.SetDirection(-1);
-  Searcher::bestMove.SetScore(eval.Evaluate(game.GetBoardState()) - 10 * game.GetMoves());
+  Searcher::bestMove.SetScore(-999999);
   Searcher::states.push(game);
+  cout << game.GetMoves() << endl;
   for (int i = 0; i < 10; i++) {
     threads.push_back(thread(Searcher::runBestMove, game.GetMoves()));
   }
