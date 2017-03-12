@@ -65,6 +65,7 @@ void Searcher::runBestMove(int depth) {
       Game newGame(next);
       //cout << c.GetRow() << ", " << c.GetCol() << ", " << c.GetDirection() << endl;
       newGame.ApplyMove(c);
+      atomic_counter++;
       //cout << "test" << endl;
       int score = eval.Evaluate(newGame.GetBoardState());
       lk.lock();

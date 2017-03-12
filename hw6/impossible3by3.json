@@ -1,0 +1,33 @@
+{ 
+"gamedef":  {   "gameid" : 12345,
+                "extensioncolor":   {   "rows": 3,
+                                        "columns" : 3,
+                                        "data": [1, 1, 1, 1, 1, 1, 1, 1, 1]
+                                    },
+                "boardstate":   {   "rows" : 3,
+                                    "columns" : 3,
+                                    "data": [1, 1, 1, 1, 1, 1, 1, 1, 1]
+                                },
+                "colors": 6
+            },
+"gamestate":{   "boardcandies": {  "rows": 3,
+                                    "columns" : 3,
+                                    "data": [   { "color": 0, "type": 0},
+                                                { "color": 0, "type": 0},
+                                                { "color": 0, "type": 0},
+                                                { "color": 0, "type": 0},
+                                                { "color": 0, "type": 0},
+                                                { "color": 0, "type": 0},
+                                                { "color": 0, "type": 0},
+                                                { "color": 0, "type": 0},
+                                                { "color": 0, "type": 0}]
+                                },
+                "boardstate":   {   "rows" : 3,
+                                    "columns" : 3,
+                                    "data": [1, 1, 1, 1, 1, 1, 1, 1, 1]
+                                },
+               "movesmade": 0,
+               "currentscore" : 0,
+               "extensionoffset": [3, 3, 3]
+            }
+}

@@ -89,8 +89,15 @@ int Array2D_destroy(Array2D a, Array2DDataFreeFnPtr data_free_function) {
   if (!data_free_function) {
     return -1;
   }
+  if (!a->arr)
+  {
+    return -2;
+  }
   for (int i = 0; i < (a->rows * a->cols); i++) {
-    data_free_function(a->arr[i]);
+    if (a->arr[i])
+    {
+      data_free_function(a->arr[i]);
+    }
   }
   free(a->arr);
   free(a);

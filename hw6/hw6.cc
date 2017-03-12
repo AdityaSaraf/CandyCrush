@@ -53,7 +53,14 @@ int main(int argc, char **argv) {
     HelloMessage hellomsg("{\"action\": \"hello\", \"teamname\": \"agrajag\"}");
     msgh.SendMessage(hellomsg);
 
-    Message msg = msgh.GetNextMessage();
+    Message msg("");
+
+    try {
+      msg = msgh.GetNextMessage();
+    }catch (const char* msg) {
+      cerr << msg << endl;
+      return 0;
+    }
     game.Init(msg.GetData().c_str());
 
     Searcher searcher;
@@ -103,6 +110,10 @@ int main(int argc, char **argv) {
       }
       if (msg.GetType() == "bye") {
         cout << msg.GetData() << endl;
+        //cout << "Before" << endl;
+        Searcher::setDone();
+        //cout << "After" << endl;
+        th.join();
         return 1;
       }
     }
