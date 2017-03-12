@@ -27,6 +27,10 @@ Message MessageHandler::GetNextMessage() {
       if (buf[place] == '}') bracketCount--;
       place++;
     }
+    if (place == 5000)
+    {
+      throw "Error! Message from server was too long!";
+    }
     buf[place] = '\0';
     json_t *root;
     json_error_t error;

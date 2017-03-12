@@ -30,7 +30,9 @@ Array2D deserialize(json_t *root) {
 }
 
 Game::Game() {
-
+  extBoard = NULL;
+  boardState = NULL;
+  boardCandies = NULL;
 }
 
 Game::Game(const Game &other) {
@@ -55,6 +57,9 @@ Array2D Game::CopyBoard(Array2D other) {
     for (int j = 0; j < result->cols; j++) {
       int *el = (int*) Array2D_get(other, i, j);
       int *newEl = (int*) malloc(sizeof(int));
+      // if (i == 1 && j == 5) {
+      //   cout << el << endl;
+      // }
       *newEl = *el;
       Array2D_set(result, i, j, (Array2DData_t) newEl);
     }
@@ -532,6 +537,9 @@ std::string Game::SerializeCurrentState()
 }
 
 Game::~Game() {
+  if (extOffset){
+    free(extOffset);
+  }
   Array2D_destroy(boardCandies, (Array2DDataFreeFnPtr) &free);
   Array2D_destroy(boardState, (Array2DDataFreeFnPtr) &free);
   Array2D_destroy(extBoard, (Array2DDataFreeFnPtr) &free);
