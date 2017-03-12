@@ -112,7 +112,7 @@ int main(int argc, char **argv) {
         cout << msg.GetData() << endl;
         Searcher::setDone();
         th.join();
-        return 1;
+        break;
       }
     }
   } catch (string errString) {
