@@ -15,6 +15,8 @@ extern "C" {
 
 using namespace std;
 
+vector<thread> threads;
+
 mutex globalMutex;
 condition_variable cv;
 queue<Game> Searcher::states;
@@ -29,6 +31,10 @@ Searcher::Searcher() {}
 Move Searcher::setDone() {
   Searcher::done = true;
   cv.notify_all();
+  for (auto &c : threads) {
+    c.join();
+  }
+  Searcher::done = false;
   return Searcher::bestMove;
 }
 
@@ -82,6 +88,6 @@ void Searcher::GetBestMove(Game game) {
   Searcher::bestMove.SetScore(eval.Evaluate(game.GetBoardState()) - 10 * game.GetMoves());
   Searcher::states.push(game);
   for (int i = 0; i < 10; i++) {
-    thread(Searcher::runBestMove, game.GetMoves()).join();
+    threads.push_back(thread(Searcher::runBestMove, game.GetMoves()));
   }
 }

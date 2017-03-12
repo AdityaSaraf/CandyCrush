@@ -66,6 +66,7 @@ int main(int argc, char **argv) {
         Move m = Searcher::setDone();
         th.join();
         if (m.GetDirection() == -1) return 0;
+        Searcher::done = false;
         game.ApplyMove(m);
         
         json_error_t error;
@@ -85,7 +86,7 @@ int main(int argc, char **argv) {
         json_t *jmoves = json_integer(moves);
         Searcher::atomic_counter = 0;
 
-        //th = thread(getBestMove, game, searcher);
+        th = thread(getBestMove, game, searcher);
 
         json_object_set_new(root, "action", action);
         json_object_set_new(root, "teamname", teamname);
@@ -96,6 +97,7 @@ int main(int argc, char **argv) {
         string msgStr(msgcStr);
         free(msgcStr);
         json_decref(root);
+        cout << msgStr << endl;
         MyMoveMessage mymovemsg(msgStr);
         msgh.SendMessage(mymovemsg);
       }

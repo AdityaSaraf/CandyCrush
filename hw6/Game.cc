@@ -418,12 +418,7 @@ std::string Game::SerializeCurrentState()
 {
   json_t *obj = json_object();
 
-  json_t *action = json_string("mymove");
-  json_t *teamname = json_string("sarafa_kblack");
-  json_object_set(obj, "action", action);
-  json_object_set(obj, "teamname", teamname);
 
-  json_t *gameinstance = json_object();
 
   json_t *gamedef = json_object();
 
@@ -466,7 +461,6 @@ std::string Game::SerializeCurrentState()
   json_object_set(bState, "data", stateArr);
   json_object_set(gamedef, "boardstate", bState);
 
-  json_object_set(gameinstance, "gamedef", gamedef);
 
   json_t *gamestate = json_object();
   
@@ -506,9 +500,8 @@ std::string Game::SerializeCurrentState()
   json_object_set(bCandies, "data", cArr);
   json_object_set(gamestate, "boardcandies", bCandies);
   
-  json_object_set(gameinstance, "gamestate", gamestate);
-  json_object_set(obj, "gameinstance", gameinstance);
-  json_dump_file(obj, "test.out", 0);
+  json_object_set(obj, "gamestate", gamestate);
+  json_object_set(obj, "gamedef", gamedef);
   char *jresult = json_dumps(obj, 0);
   std::string result(jresult);
   free(jresult);
