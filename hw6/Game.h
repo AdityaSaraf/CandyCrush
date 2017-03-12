@@ -17,6 +17,7 @@ class Game {
   Game();
   Game(const Game &other);
   void Init(const char *fileName);
+  void PrintState();
   int GetColor(const int row, const int col);
   int GetState(const int row, const int col);
   int GetRows();
