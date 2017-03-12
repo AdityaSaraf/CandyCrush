@@ -395,11 +395,14 @@ void Game::ShiftDown(int startingRow, int col) {
 
   }
   // fill in the highest row with the extension board
+  cout << "row: " << extOffset[col] << ", col: " << col << endl;
+  cout << "maxExtRow: " << extBoard->rows << ", maxExtCol: " << extBoard->cols << endl;
+  printf("row: %i, col: %i \nmaxextrow: %i, maxextcol: %i", extOffset[col], col, extBoard->rows, extBoard->cols);
   int* highestCandy = (int*)(Array2D_get(boardCandies, boardCandies->rows -1, col));
-  int replacement = *(int*)(Array2D_get(extBoard, extOffset[col], col));
+  int replacement = *(int*)(Array2D_get(extBoard, extOffset[col] % extBoard->rows, col));
   *highestCandy = replacement;
   // increment the offset, modding by # of rows
-  extOffset[col] = (extOffset[col] + 1) % boardCandies->rows;
+  extOffset[col] = (extOffset[col] + 1);// % extBoard->rows;
 }
 
 bool Game::IsWon() {
