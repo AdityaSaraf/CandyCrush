@@ -110,6 +110,7 @@ int main(int argc, char **argv) {
       }
       if (msg.GetType() == "bye") {
         cout << msg.GetData() << endl;
+        sleep(2);
         Searcher::setDone();
         th.join();
         break;
