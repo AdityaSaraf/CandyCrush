@@ -84,7 +84,7 @@ void Game::Init(const char *jString) {
 
   json_t *extb = json_object_get(gameDef, "extensioncolor");
   extBoard = deserialize(extb);
-  extOffset = (int*) malloc(sizeof(int) * extBoard->cols);
+  extOffset = (int*) malloc(sizeof(int*) * extBoard->cols);
 
   if (gameState) {
     // get boardCandies and boardState from gameState, moves, score, offset

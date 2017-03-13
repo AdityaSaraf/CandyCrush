@@ -10,7 +10,7 @@ GTKLDFLAGS=`pkg-config --libs gtk+-3.0`
 all: hw6
 
 hw6: hw6.cc $(SRC) $(HEADERS) $(LIBS)
-	g++ $(CFLAGS) -g -O0 $(IFLAGS) $(GTKCFLAGS) -o hw6 hw6.cc $(SRC) $(LDFLAGS) $(GTKLDFLAGS)
+	g++ $(CFLAGS) -g -O0 $(IFLAGS) $(GTKCFLAGS) -o hw6-model hw6.cc $(SRC) $(LDFLAGS) $(GTKLDFLAGS)
 
 clean:
 	rm -f *.o *~ hw6
